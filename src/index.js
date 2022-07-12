@@ -7,7 +7,7 @@ const app = express();
 const connectDB = require("./dbConnect.js");
 const dotenv = require('dotenv');
 
-const PORT = process.env.PORT || 6031;
+const PORT = process.env.PORT || 6030;
 //Load Config
 dotenv.config();
 connectDB();
@@ -31,5 +31,5 @@ const userRoute = require('../routes/userRoute');
 app.use("/", userRoute);
 
 app.listen(PORT, () => {
-  console.log("server is listening at port http://localhost:6031");
+  console.log("server is listening at port http://localhost:6030");
 });

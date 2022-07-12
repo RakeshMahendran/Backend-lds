@@ -19,6 +19,7 @@ const login = async (req, res) => {
 		const token = user.generateAuthToken();
 		res.status(200).send({ data: token, message: "logged in successfully" });
 	} catch (error) {
+		console.log(error);
 		res.status(500).send({ message: "Internal Server Error" });
 	}
 };
