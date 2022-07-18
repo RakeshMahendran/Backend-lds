@@ -3,11 +3,12 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+
+
 const app = express();
 const connectDB = require("./dbConnect.js");
 const dotenv = require('dotenv');
 
-const PORT = process.env.PORT || 6030;
 //Load Config
 dotenv.config();
 connectDB();
@@ -26,10 +27,18 @@ app.use(express.json());
   // adding morgan to log HTTP requests
   app.use(morgan('combined'));
 
+
+//import routes
 const userRoute = require('../routes/userRoute');
-//app.use("/", require('../routes/listingRoute'));
+
+
+
+//middlewares
 app.use("/", userRoute);
 
+
+
+const PORT = process.env.PORT || 6030;
 app.listen(PORT, () => {
   console.log("server is listening at port http://localhost:6030");
 });
