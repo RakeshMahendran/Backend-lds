@@ -9,10 +9,6 @@ const app = express();
 const connectDB = require("./dbConnect.js");
 const dotenv = require('dotenv');
 
-<<<<<<< HEAD
-const PORT = process.env.PORT || 6030;
-=======
->>>>>>> d75d76c0419c7ddd5c8f674a626d6b63328c3e82
 //Load Config
 dotenv.config();
 connectDB();

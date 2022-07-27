@@ -15,15 +15,6 @@ const login = async (req, res) => {
     password = password.trim();
 
 
-<<<<<<< HEAD
-		const token = user.generateAuthToken();
-		res.status(200).send({ data: token, message: "logged in successfully" });
-	} catch (error) {
-		console.log(error);
-		res.status(500).send({ message: "Internal Server Error" });
-	}
-};
-=======
 	 if ( email == "" || password == "")  {
         res.json ({
             status: "FAILED",
@@ -73,6 +64,5 @@ const login = async (req, res) => {
 		})
 	}}
   
->>>>>>> d75d76c0419c7ddd5c8f674a626d6b63328c3e82
 
 module.exports = {login};
