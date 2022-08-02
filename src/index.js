@@ -38,7 +38,7 @@ app.use("/", userRoute);
 
 
 
-const PORT = process.env.PORT || 6030;
+const PORT = process.env.PORT || 88;
 app.listen(PORT, () => {
-  console.log("server is listening at port http://localhost:6030");
+  console.log("server is listening at port http://localhost:88");
 });

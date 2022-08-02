@@ -9,7 +9,7 @@ const user = require("../src/users/controllers/user");
 const auth = require("../src/users/controllers/auth");
 
 // otp verify from controllers
-const otpVerify  = require("../src/users/controllers/otpverify"); 
+const otpVerify  = require("../src/users/controllers/otpVerify"); 
 
 //reset password from controllers
 const request = require("../src/users/controllers/requestPassword")
