@@ -29,14 +29,14 @@ let transporter = nodemailer.createTransport({
 
 // testing success 
 
-  transporter.verify((error,success) => {
-    if(error){
-        console.log(error)
-    } else {
-        console.log("Ready for messages");
-        console.log(success);
-    }
-})
+//   transporter.verify((error,success) => {
+//     if(error){
+//         console.log(error)
+//     } else {
+//         console.log("Ready for messages");
+//         console.log(success);
+//     }
+// })
 
 
 

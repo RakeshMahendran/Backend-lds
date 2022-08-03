@@ -30,12 +30,12 @@ app.use(express.json());
 
 //import routes
 const userRoute = require('../routes/userRoute');
-
+const paymentRoutes=require('../routes/paymentRoutes')
 
 
 //middlewares
 app.use("/", userRoute);
-
+app.use("/",paymentRoutes)
 
 
 const PORT = process.env.PORT || 6030;
