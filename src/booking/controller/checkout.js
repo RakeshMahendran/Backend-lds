@@ -19,6 +19,7 @@ exports.createCheckout=async(req,res)=>{
     newBooking.passenger_contact_info.alternate_phone_number=req.body.PassengerContactInfo.AlternatePhoneNumber;
     newBooking.passenger_contact_info.email=req.body.PassengerContactInfo.Email;
     newBooking.target_api='Trip pro';
+    newBooking.currency=req.body.Currency;
 
     const flightData=getFlightData("aa","dd");
 
@@ -68,37 +69,52 @@ exports.createCheckout=async(req,res)=>{
     
     console.log('[+]New Booking',newBooking);
     
-    newBooking.save((err,data)=>{
-        if(err||!data){
-            console.log('[+]problem with saving new booking', err);
-            return res.status(400).json({err:"Problem with saving new bookings"});
-        }
-        console.log('[+]Success save')
-        stripe.checkout.sessions.create({
-            mode:'payment',
-            line_items:convert(flightBillData),
-            success_url:`http://localhost:6030/payment/${newBooking._id}`, 
+
+
+    stripe.checkout.sessions.create({
+        mode:'payment',
+            line_items:convert(flightBillData,newBooking.currency),
+            payment_intent_data:{
+                metadata:{
+                    "invoice":String(newBooking._id),
+                },
+            },
+            success_url:`http://localhost:6030/api/FlightDetials/${newBooking._id}`, 
             cancel_url:"http://localhost:4444/suc"
-        }).then(session=>{
+        }).then((session)=>{
             //once we ge the session store the pay intent in the database
             //update the payment status
             //update the booking status
-            console.log('[+]session url ',session);
-            return res.json({url:session.url})
-        })
+            newBooking.stripe_data.checkoutSessionId=session.id;
+            newBooking.stripe_data.pay_intentId=session.payment_intent;
+            newBooking.save((err,data)=>{
+                if(err||!data){
+                    console.log('[+]problem with saving new booking', err);
+                    return res.status(400).json({err:"Problem with saving new bookings"});
+                }
+                console.log('[+]Success save',data)
+                
+                console.log('[+]session url ',session);
+                return res.json({url:session.url})
+            })
+    }).catch((err)=>{
+        console.log('[+]Error from creating stripe checkout session')
+        console.error('\x1b[31m','[+]Error type ',err.raw.type);
+        console.error('\x1b[31m','[+]Error message '+err.raw.message);
+        return res.status(200).json({"error":err.raw.message})
     })
 
 }
 
 
-function convert(flightBillData){
+function convert(flightBillData,currency){
 
 
     const stripeDate=flightBillData.map(e=>{
         if(e.count>0){
         return{
                 price_data:{
-                    currency:'inr',
+                    currency:currency,
                     product_data:{
                         name:e.passenger_type
                     },

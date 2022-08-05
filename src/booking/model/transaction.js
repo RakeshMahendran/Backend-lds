@@ -11,6 +11,7 @@ const paymentGatewaySchema= new mongoose.Schema({
 
 
 const transactionSchema= new mongoose.Schema({
+    paymentgateway
     invoice
     transactionid
     

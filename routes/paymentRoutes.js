@@ -2,12 +2,20 @@ const express = require('express');
 const router = express.Router();
 
 const {createCheckout} = require('../src/booking/controller/checkout')
-const {book}=require("../src/booking/controller/booking")
+const {BookingDetails}=require("../src/booking/controller/bookingDetails")
+
 
 router.post('/api/checkout-session/:userId',createCheckout)
 
+router.get('/api/BookingDetails/:bookingId',BookingDetails)
+
 router.param('userId',(req,res,next,id)=>{
     req.userId=id;
+    next();
+})
+
+router.param('bookingId',(req,res,next,id)=>{
+    req.bookingId=id;
     next();
 })
 

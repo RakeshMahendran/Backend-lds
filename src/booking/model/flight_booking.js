@@ -73,7 +73,7 @@ const flight_bookings = mongoose.Schema({
         type:String,
         require:true
     },
-    stripe_date:{
+    stripe_data:{
         pay_intentId:{
             type:String,
         },
