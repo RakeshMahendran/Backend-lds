@@ -1,3 +1,4 @@
+const e = require('express')
 const mongoose = require('mongoose')
 
 const flight_bookings = mongoose.Schema({
@@ -112,11 +113,11 @@ const flight_bookings = mongoose.Schema({
 flight_bookings.methods={
     setFare:function(flightBillData){
         this.base_fare=this.total_tax=this.gross_fare=this.invoice_fare=0
-        for(e of flightBillData){
-            this.base_fare+=e.count*e.unit_amount.BaseFare,
-            this.total_tax+=e.count*e.unit_amount.TotalTax,
-            this.gross_fare+=e.count*e.unit_amount.GrossFare,
-            this.invoice_fare+=e.count*e.unit_amount.InvoiceFare
+        for(let e of flightBillData){
+            this.base_fare+=e.amount.BaseFare;
+            this.total_tax+=e.amount.Taxes;
+            // this.gross_fare+=e.count*e.unit_amount.GrossFare,
+            // this.invoice_fare+=e.count*e.unit_amount.InvoiceFare
         }
     }
 }
