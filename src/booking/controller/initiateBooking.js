@@ -19,16 +19,9 @@ exports.initiateBooking=async (req,res)=>{
                 console.log('[+]')
                 const bookingRequest=createBookingRequest(data.flight_passenger_id,data.passenger_contact_info,data.target_api)
                 console.log('[+] created booking request body ',bookingRequest)
-                const url="https://map.trippro.com/resources/v2/Flights/bookItinerary"
-                const headers={
-                    "Content-type":"application/json",
-                    "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
-                }
-                fetch(url,{
-                    method:"POST",
-                    headers:headers,
-                    body:JSON.stringify(bookingRequest)
-                }).then(res=>res.json()).then(res=>{console.log('[+]Booking response ',res)})
+                const bookingResponse=await book(bookingRequest);
+                console.log('[+]Booking response',bookingResponse)
+                return res.json({"booking response ":bookingResponse})
 
                 
             }
@@ -42,7 +35,19 @@ exports.initiateBooking=async (req,res)=>{
 
 }
 
-
+async function book(bookingRequest){
+    const url="https://map.trippro.com/resources/v2/Flights/bookItinerary"
+    const headers={
+        "Content-type":"application/json",
+        "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
+    }
+    const response = await fetch(url,{
+        method:"POST",
+        headers:headers,
+        body:JSON.stringify(bookingRequest)
+    })
+    return response.json()
+}
 
 function createBookingRequest(flight_passenger,passenger_contact,itinearyId){
     const bookingRequest={
@@ -64,9 +69,9 @@ function createBookingRequest(flight_passenger,passenger_contact,itinearyId){
             }
         }),
         "BookItineraryPaxContactInfo": {
-        "PhoneNumber": passenger_contact.phone_number,
-        "AlternatePhoneNumber": passenger_contact.alternate_phone_number,
-        "Email": passenger_contact.email
+        "PhoneNumber": String(passenger_contact.phone_number),
+        "AlternatePhoneNumber": String(passenger_contact.alternate_phone_number),
+        "Email": String(passenger_contact.email)
         },
         "BookItineraryPaymentDetail":{
            "PaymentType": "HOLD",

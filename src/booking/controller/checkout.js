@@ -3,14 +3,10 @@ const stripe=require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 const fetch = require('node-fetch')
 
-const { json } = require('body-parser')
-const { body } = require('express-validator')
-const { func } = require('joi')
+
 const FlightBooking=require('../model/flight_booking')
 const FlightPassengers=require('../model/flight_passenger')
 const FlightSegment = require('../model/flight_segment')
-const { contentSecurityPolicy } = require('helmet')
-const { getRounds } = require('bcrypt')
 
 
 exports.createCheckout=async(req,res)=>{
@@ -64,6 +60,9 @@ exports.createCheckout=async(req,res)=>{
     const flightData= await reprice(req.body.IteneraryRefID,flightBillData[0].count,flightBillData[1].count,flightBillData[2].count);
     console.log('[+]reprice res ',flightData)
 
+    if(flightData.ErrorCode!==undefined){
+        return res.status(200).json(flightData)
+    }
 
 
     flightBillData[0].amount=flightData.Fares[0]
@@ -168,6 +167,8 @@ async function  reprice (itenary,a,c,i){
         method:"POST",
         headers:headers,
         body:JSON.stringify(body)
+    }).catch(err=>{
+        console.log('[+]Error with reprice trip pro ',err)
     })
     return response.json()
 }
