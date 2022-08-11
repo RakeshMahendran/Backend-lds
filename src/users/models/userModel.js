@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt');
 
+// env variables
+require("dotenv").config();
 
-const jwt = require("jsonwebtoken");
-const Joi = require("joi");
-const passwordComplexity = require("joi-password-complexity");
 
 const addressSchema = new Schema({
       number: { type: String, default: null },
@@ -13,12 +13,15 @@ const addressSchema = new Schema({
       country: { type: String, default: null }
 })
 
-const userSchema = new Schema({
+const userSchema = new Schema(
+    {
     firstName: {
         type: String,
+        required: true,
     },
     lastName: {
         type: String,
+        required: true,
     },
     email: {
         type: String,
@@ -28,6 +31,9 @@ const userSchema = new Schema({
     type: String,
     // required: [true, 'Provide password']
    },
+     token:{ 
+      type: String 
+    },
     countryCode: {
          type: String,
     },
@@ -39,31 +45,38 @@ const userSchema = new Schema({
     },
     address: {
         type: addressSchema,
-  },
+    },
+    pic: {
+      type: String,
+     // required: true,
+      default:
+        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+    },
    verified:{ 
         type: Boolean,
         // required: true,
-    }
+    },
+}, { 
+    timestamps : true,
+   }
+);
+
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// will encrypt password everytime its saved
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
+
+
 const User = mongoose.model("user", userSchema);
 
-userSchema.methods.generateAuthToken = function () {
-	const token = jwt.sign({ _id: this._id }, process.env.JWTPRIVATEKEY, {
-		expiresIn: "7d",
-	});
-	return token;
-};
-
-const validate = (data) => {
-	const schema = Joi.object({
-		firstName: Joi.string().required().label("First Name"),
-		lastName: Joi.string().required().label("Last Name"),
-		email: Joi.string().email().required().label("Email"),
-		password: passwordComplexity().required().label("Password"),
-	});
-	return schema.validate(data);
-};
-
-module.exports = { User, validate };
+module.exports = { User};
 
 

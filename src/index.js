@@ -32,6 +32,11 @@ app.use(express.json());
 const userRoute = require('../routes/userRoute');
 const paymentRoutes=require('../routes/paymentRoutes')
 
+// const auth = require("../src/users/middleware/auth");
+
+// app.post("/welcome", auth, (req, res) => {
+//   res.status(200).send("Welcome 🙌 ");
+// });
 
 //middlewares
 app.use("/", userRoute);

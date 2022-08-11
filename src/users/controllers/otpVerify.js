@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 //mongo user model
-const { User, validate } = require('../models/userModel')
+const { User } = require('../models/userModel')
 // mongodb user otp verification model
 const userOTPVerification = require('../models/userOTPVerification')
 
