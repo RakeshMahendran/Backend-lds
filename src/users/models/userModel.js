@@ -26,7 +26,7 @@ const userSchema = new Schema({
    },
     password: {
     type: String,
-    required: [true, 'Provide password']
+    // required: [true, 'Provide password']
    },
     countryCode: {
          type: String,

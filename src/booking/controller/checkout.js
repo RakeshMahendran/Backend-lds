@@ -120,7 +120,7 @@ exports.createCheckout=async(req,res)=>{
 
 function convert(flightBillData,currency){
 
-
+    console.log('[+]Initializing stripe for checkout...')
     const stripeDate=flightBillData.map(e=>{
         if(e.count>0){
         return{
@@ -152,6 +152,7 @@ function convert(flightBillData,currency){
 
 
 async function  reprice (itenary,a,c,i){
+    console.log('[+]Initilizing Trip pro reprice...')
     const body={
         "ItineraryId":itenary,
         "AdultPaxCount":a,
@@ -174,6 +175,7 @@ async function  reprice (itenary,a,c,i){
 }
 
 async function createNewPassenger(e){
+    console.log('[+]Creating New passenger...')
     const newpassenger=new FlightPassengers();
     newpassenger.gender=e.Gender
     newpassenger.passenger_type=e.PassengerTypeCode
@@ -194,6 +196,7 @@ async function createNewPassenger(e){
 
 async function createFlightSegment(e){
     // console.log('[+]Flight segment ',e)
+    console.log('[+]Creating new FLight Segment...')
     const newFlightSegment= new FlightSegment()
     
     newFlightSegment.origin_code=e.OriginCode

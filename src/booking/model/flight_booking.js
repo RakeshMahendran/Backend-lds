@@ -114,8 +114,11 @@ flight_bookings.methods={
     setFare:function(flightBillData){
         this.base_fare=this.total_tax=this.gross_fare=this.invoice_fare=0
         for(let e of flightBillData){
-            this.base_fare+=e.amount.BaseFare;
-            this.total_tax+=e.amount.Taxes;
+            if(e.count!==0){
+
+                this.base_fare+=e.amount.BaseFare;
+                this.total_tax+=e.amount.Taxes;
+            }
             // this.gross_fare+=e.count*e.unit_amount.GrossFare,
             // this.invoice_fare+=e.count*e.unit_amount.InvoiceFare
         }
