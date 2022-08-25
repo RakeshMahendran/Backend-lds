@@ -6,10 +6,15 @@ const { populate } = require('../model/flight_booking')
 const FlightBooking=require('../model/flight_booking')
 
 exports.BookingDetails=(req,res)=>{
-    FlightBooking.findById(req.bookingId).populate('flight_passenger_id').populate('flight_segments').exec((err,data)=>{
+    
+
+    FlightBooking.findById(req.bookingId).populate('flight_passenger_id').populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}}).exec((err,data)=>{
         if(err||!data){
             console.log('[+]unable to locate the booking detials')
-            return res.send('Unable to find the booking detials')
+            return res.status(400).json({
+                error:true,
+                message:"Unable to find the booking detials"
+            })
         }
         if(data.payment_status==="paid"){
 
@@ -17,7 +22,10 @@ exports.BookingDetails=(req,res)=>{
             data.stripe_data.chargeId=undefined
             data.stripe_data.checkoutSessionId=undefined
 
-            return res.status(200).json({"BookingDetials":data})
+            return res.status(200).json({
+                error:false,
+                message:data
+            })
 
         }
 
@@ -29,7 +37,10 @@ exports.BookingDetails=(req,res)=>{
                     data.save((err,data)=>{
                         if(err||!data){
                             console.log('[+]Unable to update');
-                            return res.status(400).json({"BookingDetials":data})
+                            return res.status(400).json({
+                                error:false,
+                                message:data
+                            })
                         }
                         else{
                             data.stripe_data.pay_intentId=undefined
@@ -37,7 +48,10 @@ exports.BookingDetails=(req,res)=>{
                             data.stripe_data.checkoutSessionId=undefined
     
                             // console.log('[+]Updated flight booking',data)
-                        return res.status(200).json({"BookingDetials":data})
+                            return res.status(200).json({
+                                error:false,
+                                message:data
+                            })
     
                     }
                 })
@@ -45,7 +59,10 @@ exports.BookingDetails=(req,res)=>{
                 
                 else{
                     stripe.checkout.sessions.retrieve(data.stripe_data.checkoutSessionId).then(c=>{
-                        return res.status(200).json({"url":c.url})
+                        return res.status(200).json({
+                            error:false,
+                            paymentURI:c.url
+                        })
                     })
                     console.log('[+]Amount not paid')
                 }

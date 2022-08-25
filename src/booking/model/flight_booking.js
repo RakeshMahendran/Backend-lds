@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const flight_bookings = mongoose.Schema({
     user_id:{
         type:mongoose.Schema.ObjectId,
-        ref:'userSchema',
+        ref:'user',
         require:true
     },
    
@@ -99,10 +99,10 @@ const flight_bookings = mongoose.Schema({
             type:String,
         }
     },
-    flight_segments:[
+    flight_journey:[
         {
             type:mongoose.Schema.ObjectId,
-            ref:'FlightSegment'
+            ref:'Journey'
         }
     ]
 
@@ -111,17 +111,12 @@ const flight_bookings = mongoose.Schema({
 
 
 flight_bookings.methods={
-    setFare:function(flightBillData){
+    setFare:function(fares,pass){
         this.base_fare=this.total_tax=this.gross_fare=this.invoice_fare=0
-        for(let e of flightBillData){
-            if(e.count!==0){
-
-                this.base_fare+=e.amount.BaseFare;
-                this.total_tax+=e.amount.Taxes;
-            }
-            // this.gross_fare+=e.count*e.unit_amount.GrossFare,
-            // this.invoice_fare+=e.count*e.unit_amount.InvoiceFare
-        }
+       for(f of fares){
+        this.base_fare+=f.BaseFare*pass[f.PaxType]
+        this.total_tax+=f.Taxes*pass[f.PaxType]
+       }
     }
 }
 
