@@ -1,5 +1,6 @@
 
 const fetch = require('node-fetch')
+const { notify } = require('../../../routes/paymentRoutes')
 const parseString = require('xml2js').parseString
 
 
@@ -54,3 +55,20 @@ exports.cancel=async (req,res)=>{
 
     // console.log('[+]Booking detials ',flight)
 }
+
+/*
+
+booked pnr
+    paid
+        booked
+            cancel the ticket
+            calc the refund amount
+            inti refund
+        unbooked
+            cancel pnr
+            init refund
+    unpaid
+        notify the user
+        cancel the pnr
+
+*/
