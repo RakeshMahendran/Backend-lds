@@ -5,6 +5,7 @@ const router = express.Router();
 
 
 const {generatePNR, getPrice,stripeCheckout,guestCheckout}=require('../src/booking/controller/booking')
+const {cancel}= require('../src/booking/controller/cancel')
 
 
 const {requiredSignin} = require('../src/users/middleware/requiredSignin')
@@ -17,9 +18,16 @@ router.post('/api/v1/flight/initPayBook/guest',guestCheckout,generatePNR,stripeC
 
 router.post('/api/v1/flight/initPayBook/:userId',requiredSignin,generatePNR,stripeCheckout)
 
+router.get('/api/v1/flight/cancel/:bookingId',cancel)
+
 // router.post('/api/v1/flight/issueTicket')
 
 // router.get('/api/v1/flight/cancelBooking')
+
+router.param('pnr',(req,res,next,id)=>{
+    req.pnr=id;
+    next();
+})
 
 router.param('itineraryId',(req,res,next,id)=>{
     req.itineraryId=id;

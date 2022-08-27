@@ -110,8 +110,10 @@ exports.generatePNR=async(req,res,next)=>{
         newBooking.flight_passenger_id.push(newpassenger._id);
     }
 
+    newBooking.booking_status="init";
+    
     console.log('[+]Passenger type count ',pass)
-
+    
     let data= await newBooking.populate('flight_passenger_id')
 
     const bookingRequest= createBookingRequest(data.flight_passenger_id,data.passenger_contact_info,data.target_api)
@@ -126,7 +128,7 @@ exports.generatePNR=async(req,res,next)=>{
     }
     
     data.api_pnr=bookingResponse.PNR;
-
+    data.booking_status="PNR";
     data = await createFlightSegments(data,pass);
     data=await data.save()
     // const flightSummary = await (await data.).populate('user_id')

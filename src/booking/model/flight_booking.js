@@ -55,14 +55,9 @@ const flight_bookings = mongoose.Schema({
     invoice_fare:{
         type:Number
     },
-    booking:{
-        booking_id:{
-            type:String
-        },
-        booking_status:{
-            type:String,
-            enum:[]
-        }
+    booking_status:{
+        type:String,
+        enum:["init","PNR","cancled","ticketing","confirmed"]
     },
     payment_status:{
         type:String,
