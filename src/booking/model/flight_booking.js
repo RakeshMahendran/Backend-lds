@@ -20,13 +20,11 @@ const flight_bookings = mongoose.Schema({
     api_pnr:{
         type:String,
         require:true,
-
     },
     
     airline:{
         type:String,
         require:true,
-
     },
     flight_passenger_id:[{
         type:mongoose.Schema.ObjectId,
