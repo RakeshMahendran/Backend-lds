@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 //mongo user model
-const { User, validate } = require('../models/userModel')
+const { User } = require('../models/userModel')
 // mongodb user otp verification model
 const userOTPVerification = require('../models/userOTPVerification')
 
@@ -24,14 +24,14 @@ let transporter = nodemailer.createTransport({
 
 // testing success 
 
-  transporter.verify((error,success) => {
-    if(error){
-        console.log(error)
-    } else {
-        console.log("Ready for messages");
-        console.log(success);
-    }
-})
+//   transporter.verify((error,success) => {
+//     if(error){
+//         console.log(error)
+//     } else {
+//         console.log("Ready for messages");
+//         console.log(success);
+//     }
+// })
 
 
 //send otp verification email
