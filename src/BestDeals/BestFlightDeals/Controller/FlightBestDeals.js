@@ -2,34 +2,57 @@ const fs = require('fs')
 
 
 const BestFlightDeal= require('../Models/FlightBestDealsSchema')
+const BestFlightPassenger = require('../Models/FlightBestDealsPassengerSchema')
 
 exports.listFlightDeals=(req,res)=>{
-    BestFlightDeal.find().exec((err,data)=>{
-        data=data.map(e=>{
-            e.thumbnail=`${process.env.IMAGE_URI}${e.thumbnail}`
-            e.gallery=e.gallery.map(e=>{
-                return `${process.env.IMAGE_URI}${e}`
+    if(req.dealId==="all"){
+
+        BestFlightDeal.find().exec((err,data)=>{
+            data=data.map(e=>{
+                e.thumbnail=`${process.env.IMAGE_URI}${e.thumbnail}`
+                e.description=undefined;
+                e.gallery=undefined;
+                return e
             })
-            return e
+            res.json({
+                error:false,
+                data:data
+            })
         })
-        res.json({
-            error:false,
-            data:data
+    }
+    else{
+        BestFlightDeal.findOne({urlName:req.dealId}).exec((err,data)=>{
+            if(err||!data){
+                console.log('[+]Unable to find a deal...')
+                return res.json({
+                    error:false,
+                    message:"unable to fins a deal..."
+                })
+            }
+            data.thumbnail=undefined;
+            data.gallery=data.gallery.map(e=>{
+               
+                    return `${process.env.IMAGE_URI}${e}`
+            })
+            return res.json({
+                error:false,
+                message:data
+            })
         })
-    })
+    }
 }
 
 exports.createFlightDeals=async (req,res)=>{
     console.log('[+]req.files',req.files.thumbnail)
     const newBestFlightDeal = new BestFlightDeal();
 
-    const {title,description,from,to,price,currency}= req.body
+    const {title,description,from,to,price,currency,urlName}= req.body
     const{thumbnail,gallery}=req.files
 
     newBestFlightDeal.thumbnail=thumbnail[0].filename
     newBestFlightDeal.title=title
     newBestFlightDeal.description= description
-
+    newBestFlightDeal.urlName=urlName
     flightData= newBestFlightDeal.flightData
 
     flightData.From= from
@@ -162,4 +185,21 @@ exports.deleteFlightDeals=async(req,res)=>{
         })
     }
 
+}
+
+exports.formSubmit=(req,res)=>{
+    const newPassenger = new BestFlightPassenger(req.body)
+    console.log('[+]New passenger ',newPassenger)
+    newPassenger.save((err,data)=>{
+        if(err||!data){
+            return res.json({
+                error:true,
+                message:"Unable to save it in database"
+            })
+        }
+        return res.json({
+            error:false,
+            message:data
+        })
+    })
 }

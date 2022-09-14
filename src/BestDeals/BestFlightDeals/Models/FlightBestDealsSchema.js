@@ -1,8 +1,14 @@
+const { required } = require('joi')
 const mongoose = require('mongoose')
 
 const FlightBestDealsSchema= mongoose.Schema({
+    urlName:{
+        type:String,
+        required:true
+    },
     title:{
-        type:String
+        type:String,
+        required:true
     },
     thumbnail:{
         type:String

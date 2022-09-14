@@ -21,7 +21,7 @@ exports.BookingDetails=(req,res)=>{
             data.stripe_data.pay_intentId=undefined
             data.stripe_data.chargeId=undefined
             data.stripe_data.checkoutSessionId=undefined
-
+            /* start the ticketing */
             return res.status(200).json({
                 error:false,
                 message:data
@@ -37,6 +37,7 @@ exports.BookingDetails=(req,res)=>{
                     data.save((err,data)=>{
                         if(err||!data){
                             console.log('[+]Unable to update');
+                            
                             return res.status(400).json({
                                 error:false,
                                 message:data
@@ -47,7 +48,10 @@ exports.BookingDetails=(req,res)=>{
                             data.stripe_data.chargeId=undefined
                             data.stripe_data.checkoutSessionId=undefined
     
-                            // console.log('[+]Updated flight booking',data)
+                            // console.log('[+]Updated flight booking',data)\
+                            //start the ticketing
+
+                            
                             return res.status(200).json({
                                 error:false,
                                 message:data
