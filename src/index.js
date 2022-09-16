@@ -24,6 +24,8 @@ app.use(express.json());
   // enabling CORS for all requests
   app.use(cors());
   
+  app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+  
   // adding morgan to log HTTP requests
   app.use(morgan('combined'));
 
