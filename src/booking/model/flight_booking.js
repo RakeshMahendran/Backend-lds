@@ -15,11 +15,14 @@ const flight_bookings = mongoose.Schema({
     },
     trip_type:{
         type:String,
-        enum:['One-way-trip','Round-way-trip']
+        enum:['One-way-trip','Round-way-trip','Multi-city-trip']
     },
     api_pnr:{
         type:String,
         require:true,
+    },
+    api_refNum:{
+        type:Number
     },
     
     airline:{

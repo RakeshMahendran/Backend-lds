@@ -2,8 +2,9 @@ require('dotenv').config()
 const stripe=require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 
-const { populate } = require('../model/flight_booking')
 const FlightBooking=require('../model/flight_booking')
+
+const {ticketing} = require ('./ticketing')
 
 exports.BookingDetails=(req,res)=>{
     
@@ -17,15 +18,7 @@ exports.BookingDetails=(req,res)=>{
             })
         }
         if(data.payment_status==="paid"){
-
-            data.stripe_data.pay_intentId=undefined
-            data.stripe_data.chargeId=undefined
-            data.stripe_data.checkoutSessionId=undefined
-            /* start the ticketing */
-            return res.status(200).json({
-                error:false,
-                message:data
-            })
+           return sucessPayment(res,data)
 
         }
 
@@ -44,18 +37,7 @@ exports.BookingDetails=(req,res)=>{
                             })
                         }
                         else{
-                            data.stripe_data.pay_intentId=undefined
-                            data.stripe_data.chargeId=undefined
-                            data.stripe_data.checkoutSessionId=undefined
-    
-                            // console.log('[+]Updated flight booking',data)\
-                            //start the ticketing
-
-                            
-                            return res.status(200).json({
-                                error:false,
-                                message:data
-                            })
+                           return sucessPayment(res,data)
     
                     }
                 })
@@ -76,5 +58,19 @@ exports.BookingDetails=(req,res)=>{
         })
     
         
+    })
+}
+
+async function sucessPayment(res,data){
+    
+    data = await ticketing(data)
+    // console.log('[+]After console log',data)
+    // data.stripe_data.pay_intentId=undefined
+    // data.stripe_data.chargeId=undefined
+    // data.stripe_data.checkoutSessionId=undefined
+    // /* start the ticketing */
+    return res.status(200).json({
+        error:false,
+        message:data
     })
 }

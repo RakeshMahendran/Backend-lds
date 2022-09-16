@@ -31,6 +31,7 @@ exports.getPrice=async (req,res)=>{
 
 
 const {User} = require('../../users/models/userModel')
+const { response } = require('express')
 
 exports.guestCheckout = (req,res,next)=>{
 
@@ -88,7 +89,8 @@ async function reprice(it,a,c,i){
 
 exports.generatePNR=async(req,res,next)=>{
     const newBooking = new FlightBooking();
-
+    
+    try{
     pci=req.body.PassengerContactInfo;
     newBooking.user_id=req.userId;
     newBooking.passenger_contact_info.phone_number=pci.PhoneNumber;
@@ -128,6 +130,7 @@ exports.generatePNR=async(req,res,next)=>{
     }
     
     data.api_pnr=bookingResponse.PNR;
+    data.api_refNum=bookingResponse.ReferenceNumber
     data.booking_status="PNR";
     data = await createFlightSegments(data,pass);
     data=await data.save()
@@ -143,6 +146,10 @@ exports.generatePNR=async(req,res,next)=>{
     // })
     req.bookingId=data._id
     next()
+}
+catch(e){
+
+}
 }
 
 
@@ -300,6 +307,13 @@ async function createFlightSegments(data,pass){
     data.setFare(fares,pass)
 
     console.log('[+]reprice ',flightData)
+    if(flightData.Citypairs.length==1){
+        data.trip_type='One-way-trip'
+    }
+    else if(flightData.Citypairs>2){
+        data.trip_type="Multi-city-trip"
+    }
+    data.airline=flightData.ValidatingCarrierName
     for(f of flightData.Citypairs){
         const newJourney = new Journey()
         for(fs of f.FlightSegment){
@@ -335,3 +349,4 @@ async function newFlightSegment(e){
 
     return await newFlightSegment.save()
 }
+

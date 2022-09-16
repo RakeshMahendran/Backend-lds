@@ -4,7 +4,8 @@ const router = express.Router();
 
 
 
-const {generatePNR, getPrice,stripeCheckout,guestCheckout}=require('../src/booking/controller/booking')
+const {generatePNR, getPrice,stripeCheckout,guestCheckout}=require('../src/booking/controller/booking');
+const { BookingDetails } = require('../src/booking/controller/bookingDetails');
 const {cancel}= require('../src/booking/controller/cancel')
 
 
@@ -19,6 +20,8 @@ router.post('/api/v1/flight/initPayBook/guest',guestCheckout,generatePNR,stripeC
 router.post('/api/v1/flight/initPayBook/:userId',requiredSignin,generatePNR,stripeCheckout)
 
 router.get('/api/v1/flight/cancel/:bookingId',cancel)
+
+router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails)
 
 // router.post('/api/v1/flight/issueTicket')
 
