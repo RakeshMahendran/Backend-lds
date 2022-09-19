@@ -33,7 +33,6 @@ app.use(express.json());
 //import routes
 const userRoute = require('../routes/userRoute');
 const paymentRoutes=require('../routes/paymentRoutes')
-const bestDealsRoutes = require('../routes/BestDealsRoutes')
 
 // const auth = require("../src/users/middleware/auth");
 
@@ -43,10 +42,8 @@ const bestDealsRoutes = require('../routes/BestDealsRoutes')
 
 //middlewares
 app.use("/", userRoute);
-app.use("/",paymentRoutes);
-app.use("/",bestDealsRoutes);
+app.use("/",paymentRoutes)
 
-console.log('[+]',process.env.MONGO_URI)
 
 const PORT = process.env.PORT || 6030;
 app.listen(PORT, () => {

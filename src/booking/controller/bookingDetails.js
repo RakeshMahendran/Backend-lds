@@ -18,7 +18,8 @@ exports.BookingDetails=(req,res)=>{
             })
         }
         if(data.payment_status==="paid"){
-           return sucessPayment(res,data)
+                return sucessPayment(res,data)
+            
 
         }
 
@@ -61,14 +62,21 @@ exports.BookingDetails=(req,res)=>{
     })
 }
 
-async function sucessPayment(res,data){
-    
-    data = await ticketing(data)
+async function sucessPayment(res,data1){
+    data = await ticketing(data1)
+    if(data.ticketingResponse==="TICKET ORDERED SUCCESSFULLY"){
+        data.data.booking_status="confirmed"
+    }
+    else{
+        data.data.booking_status="ticketing"
+    }
     // console.log('[+]After console log',data)
-    // data.stripe_data.pay_intentId=undefined
-    // data.stripe_data.chargeId=undefined
-    // data.stripe_data.checkoutSessionId=undefined
+    data.data.stripe_data.pay_intentId=undefined
+    data.data.stripe_data.chargeId=undefined
+    data.data.stripe_data.checkoutSessionId=undefined
     // /* start the ticketing */
+    await data.data.save()
+    console.log('[+]Response from ticketing',data)
     return res.status(200).json({
         error:false,
         message:data
