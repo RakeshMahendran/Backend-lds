@@ -21,8 +21,9 @@ exports.successPayment=async(req,res)=>{
                 await bookingData.save()
                 return res.json(
                     {
-                        error:false,
-                        message:"The payment is not yet completed"
+                        error:true,
+                        message:"The payment is not yet completed",
+                        paymentURI:c.url
                     }
                 )
             }
