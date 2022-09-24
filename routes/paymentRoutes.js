@@ -4,11 +4,15 @@ const router = express.Router();
 
 
 
-const {generatePNR, getPrice,stripeCheckout,guestCheckout}=require('../src/booking/controller/booking');
+const {generatePNR}=require('../src/booking/controller/generatePNR');
+const {stripeCheckout} = require('../src/booking/controller/stripeCheckout')
+const {guestCheckout} = require('../src/booking/controller/guestCheckout')
+const {getPrice,repriceAndAddJourney}= require('../src/booking/controller/reprice')
 const { BookingDetails } = require('../src/booking/controller/bookingDetails');
 const {listFlight} = require('../src/booking/controller/listFlight')
 const {cancel}= require('../src/booking/controller/cancel')
-
+const {createPassengers} = require('../src/booking/controller/createPassengers')
+const {successPayment}= require('../src/booking/controller/successPayment')
 
 const {requiredSignin} = require('../src/users/middleware/requiredSignin')
 
@@ -16,15 +20,19 @@ const {requiredSignin} = require('../src/users/middleware/requiredSignin')
 
 router.post('/api/v1/flight/reprice/:itineraryId',getPrice)
 
-router.post('/api/v1/flight/initPayBook/guest',guestCheckout,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/guest',guestCheckout,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
 
-router.post('/api/v1/flight/initPayBook/:userId',requiredSignin,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/:userId',requiredSignin,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
 
 router.get('/api/v1/flight/cancel/:bookingId',cancel)
 
 router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails)
 
 router.get('/api/v1/flight/list/:userId',listFlight)
+
+router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
+
+
 
 // router.post('/api/v1/flight/issueTicket')
 

@@ -108,6 +108,7 @@ const flight_bookings = mongoose.Schema({
 
 flight_bookings.methods={
     setFare:function(fares,pass){
+        console.log('[+]fares',fares)
         this.base_fare=this.total_tax=this.gross_fare=this.invoice_fare=0
        for(f of fares){
         this.base_fare+=f.BaseFare*pass[f.PaxType]
