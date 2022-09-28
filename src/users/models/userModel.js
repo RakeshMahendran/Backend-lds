@@ -31,6 +31,11 @@ const userSchema = new Schema(
     type: String,
     // required: [true, 'Provide password']
    },
+   role:{
+    type:Number,
+    default:0
+    //registered user, guest user,
+   },
      token:{ 
       type: String 
     },

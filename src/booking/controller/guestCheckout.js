@@ -12,7 +12,7 @@ exports.guestCheckout = (req,res,next)=>{
             user.email=req.body.PassengerContactInfo.Email
             user.phoneNo= req.body.PassengerContactInfo.PhoneNumber
             user.countryCode=req.body.PassengerContactInfo.PhoneCountryCode
-
+            user.role=1
             const guestUser = await user.save();
             req.userId=guestUser._id;
             next()

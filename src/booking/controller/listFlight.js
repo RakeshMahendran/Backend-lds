@@ -10,3 +10,18 @@ exports.listFlight=(req,res)=>{
         })
     })
 }
+
+exports.filterFlight=(req,res,next)=>{
+    FlightBooking.find({payment_status:req.paymentStatus,booking_status:req.bookingStatus}).exec((err,bookings)=>{
+        if(err||!bookings){
+            return res.json({
+                error:true,
+                message:"Unable to find bookings for the given parameters"
+            })
+        }
+        return res.json({
+            error:false,
+            data:bookings
+        })
+    })
+}

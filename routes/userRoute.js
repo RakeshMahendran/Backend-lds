@@ -28,12 +28,17 @@ const reset = require("../src/users/controllers/resetPassword")
 //verify email from controllers
 const verification = require("../src/users/controllers/verifyEmail")
 
+const {listUser} = require("../src/users/controllers/listUser")
+
 //Signup, Login , Logout , Refreshtokens
 router.post('/api/v1/auth/login', (auth.login));
 router.post('/api/v1/auth/signup', (user.signup));
 router.post('/api/v1/auth/profile', (updateUser.updateUserProfile));
 router.post('/api/v1/auth/refreshToken',(refresh.refreshToken) )
 router.delete('/api/v1/auth/logout', (refresh.logout))
+
+//List all the user
+router.get('/api/v1/user/list',listUser)
 
 router.get('/api/v1/auth/details',(userDetails))
 
