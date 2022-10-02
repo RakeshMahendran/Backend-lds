@@ -14,17 +14,18 @@ exports.requiredSignin=(req,res,next)=>{
             return res.status(400).json({error:false,msg:"User not registered"});
         }
         console.log('[+]User',user)
-        JWT.verify(token,process.env.SECRET_KEY,(err,data)=>{
+        JWT.verify(token,process.env.ACCESS_TOKEN_PRIVATE_KEY,(err,data)=>{
             if(err||!data){
+                console.log('[+]Error in jwt ',err)
                 return res.status(400).json({error:false,msg:"User not singed in 2"});
             }
-            if(String(user._id)!==data.id){
+            if(String(user._id)!==data._id){
                 console.log('[+]User not authenticated');
                 return res.status(400).json({error:false,msg:"User not singed in 3"});
             }
 
             next()
-    })
+    }) 
     })
     
    

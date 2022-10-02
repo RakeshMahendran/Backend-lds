@@ -5,7 +5,7 @@ const router = express.Router();
 const { User} = require("../models/userModel");
 
 //Password handler
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 // mongodb user otp verification model
 const userOTPVerification = require('../models/userOTPVerification')
@@ -39,14 +39,14 @@ let transporter = nodemailer.createTransport({
 
 // testing success 
 
-//   transporter.verify((error,success) => {
-//     if(error){
-//         console.log(error)
-//     } else {
-//         console.log("Ready for messages");
-//         console.log(success);
-//     }
-// })
+  transporter.verify((error,success) => {
+    if(error){
+        console.log(error)
+    } else {
+        console.log("Ready for messages");
+        console.log(success);
+    }
+})
 
 //Sign up
 const signup = async (req,res) => {

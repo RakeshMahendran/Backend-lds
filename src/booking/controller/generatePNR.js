@@ -1,5 +1,6 @@
 const fetch= require('node-fetch')
 
+
 //Models
 
 const FlightBooking=require('../model/flight_booking')
@@ -11,10 +12,6 @@ const Journey = require('../model/flight_journey')
 
 
 const {User} = require('../../users/models/userModel')
-const { response } = require('express')
-
-
-
 
 
 

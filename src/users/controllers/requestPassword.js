@@ -9,7 +9,7 @@ const passwordReset = require('../models/passwordReset')
 
 
 //Password handler
-const bcrypt = require('bcrypt')
+var bcrypt = require('bcryptjs')
 
 // email handler
 const nodemailer = require("nodemailer");
@@ -29,14 +29,14 @@ let transporter = nodemailer.createTransport({
 
 // testing success 
 
-//   transporter.verify((error,success) => {
-//     if(error){
-//         console.log(error)
-//     } else {
-//         console.log("Ready for messages");
-//         console.log(success);
-//     }
-// })
+  transporter.verify((error,success) => {
+    if(error){
+        console.log(error)
+    } else {
+        console.log("Ready for messages");
+        console.log(success);
+    }
+})
 
 
 

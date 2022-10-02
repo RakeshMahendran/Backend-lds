@@ -17,7 +17,7 @@ exports.getPrice=async (req,res)=>{
             message:price.ErrorText
         })
     }
-
+    console.log('[+]Reprice done...')
     res.json({
         error:false,
         Fares:price.Fares

@@ -96,6 +96,7 @@ const flight_bookings = mongoose.Schema({
         }
     },
     flight_journey:[
+        
         {
             type:mongoose.Schema.ObjectId,
             ref:'Journey'

@@ -34,9 +34,6 @@ try {
 			return res
 				.status(401)
 				.json({ error: true, message: "Invalid email or password" });
-		
-
-		
 
 		const verifiedPassword = await bcrypt.compare(
 			req.body.password,
