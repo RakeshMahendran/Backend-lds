@@ -63,7 +63,8 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
     if(reprice.ErrorCode!==undefined){
         return res.json({
             error:true,
-            message:reprice.ErrorText
+            message:reprice.ErrorText,
+            bookingId:req.bookingId
         })
     }
     flight.setFare(reprice.Fares,req.paxTypeCount);
@@ -86,6 +87,27 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
     next()
 
 }
+
+// exports.newCheckoutPrice = async (req,res,next)=>{
+//     console.log('[+]Create new checkout init...')
+//     const flight =await FlightBooking.findById(req.bookingId)
+//     const {ADT,CHD,INT}= req.paxTypeCount
+//     const reprice= await repriceit(flight.target_api,ADT,CHD,INT)
+//     console.log('[+]reprice ',reprice)
+//     if(reprice.ErrorCode!==undefined){
+//         return res.json({
+//             error:true,
+//             message:reprice.ErrorText,
+//             bookingId:req.bookingId
+//         })
+//     }
+//     let {base_fare,total_tax}=flight
+//     flight.setFare(reprice.Fares,req.paxTypeCount);
+//     if(base_fare!==flight.base_fare || total_tax !== flight.total_tax){
+//         req.priceChange = true
+//     }
+//     next()
+// }
 
 async function newFlightSegment(e){
     // console.log('[+]Flight segment ',e)

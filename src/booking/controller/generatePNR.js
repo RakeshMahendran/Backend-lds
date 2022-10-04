@@ -27,7 +27,8 @@ exports.generatePNR=async(req,res,next)=>{
     if(bookingResponse.ErrorCode!==undefined){
         return res.json({
             error:true,
-            message:bookingResponse.ErrorText
+            message:bookingResponse.ErrorText,
+            bookingId:req.bookingId
         })
     }
     

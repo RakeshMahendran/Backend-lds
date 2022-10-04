@@ -3,7 +3,8 @@ const FlightPassengers=require('../model/flight_passenger')
 
 
 exports.createPassengers=async(req,res,next)=>{
-    const newBooking = new FlightBooking();
+    const newBooking =await FlightBooking.findById(req.bookingId)
+    console.log('[+]New booking ', newBooking)
     pci=req.body.PassengerContactInfo;
     newBooking.user_id=req.userId;
     newBooking.passenger_contact_info.phone_number=pci.PhoneNumber;
