@@ -9,7 +9,7 @@ const {stripeCheckout} = require('../src/booking/controller/stripeCheckout')
 const {guestCheckout} = require('../src/booking/controller/guestCheckout')
 const {getPrice,repriceAndAddJourney}= require('../src/booking/controller/reprice')
 const { BookingDetails } = require('../src/booking/controller/bookingDetails');
-const {listFlight, filterFlight,lf} = require('../src/booking/controller/listFlight')
+const {listFlight} = require('../src/booking/controller/listFlight')
 const {cancel}= require('../src/booking/controller/cancel')
 const {createPassengers} = require('../src/booking/controller/createPassengers')
 const {successPayment}= require('../src/booking/controller/successPayment')
@@ -31,7 +31,7 @@ router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails)
 
 router.get('/api/v1/flight/stripeCheckout/:bookingId',stripeCheckout)
 
-router.get('/api/v1/flight/list/:userId',listFlight)
+router.get('/api/v1/flight/list',listFlight)
 
 router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
 
