@@ -15,7 +15,7 @@ const {createPassengers} = require('../src/booking/controller/createPassengers')
 const {successPayment}= require('../src/booking/controller/successPayment')
 const {createNewBooking} = require('../src/booking/controller/createNewBooking')
 const {requiredSignin} = require('../src/users/middleware/requiredSignin')
-
+const {readTicket}= require('../src/booking/controller/readTicket')
 
 
 
@@ -27,7 +27,7 @@ router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,create
 
 router.get('/api/v1/flight/cancel/:bookingId',cancel)
 
-router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails)
+router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails,readTicket)
 
 router.get('/api/v1/flight/stripeCheckout/:bookingId',stripeCheckout)
 

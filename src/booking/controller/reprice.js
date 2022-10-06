@@ -20,7 +20,7 @@ exports.getPrice=async (req,res)=>{
     console.log('[+]Reprice done...')
     res.json({
         error:false,
-        Fares:price.Fares
+        Fares:price
     })
 
 }

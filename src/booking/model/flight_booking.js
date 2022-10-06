@@ -101,7 +101,10 @@ const flight_bookings = mongoose.Schema({
             type:mongoose.Schema.ObjectId,
             ref:'Journey'
         }
-    ]
+    ],
+    booking_address:{
+        
+    }
 
 },{timestamps:true})
 

@@ -6,7 +6,7 @@ const FlightBooking=require('../model/flight_booking')
 
 const {ticketing} = require ('./ticketing')
 
-exports.BookingDetails=(req,res)=>{
+exports.BookingDetails=(req,res,next)=>{
     
 
     FlightBooking.findById(req.bookingId).populate('flight_passenger_id').populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}}).exec((err,data)=>{
@@ -17,48 +17,18 @@ exports.BookingDetails=(req,res)=>{
                 message:"Unable to find the booking detials"
             })
         }
-        if(data.payment_status==="paid"){
-                return sucessPayment(res,data)
-            
-
+       
+        req.bookingData=data
+        console.log('[+]Booking status ',data.booking_status)
+        if(data.booking_status==="ticketing"){
+            next()
+            return
         }
-
-            stripe.paymentIntents.retrieve(data.stripe_data.pay_intentId).then(c=>{
-                if(c.status==="succeeded"){
-                    data.payment_status="paid"
-                    data.stripe_data.chargeId=c.charges.data[0].id;
-                    console.log('[+]Amount paid');
-                    data.save((err,data)=>{
-                        if(err||!data){
-                            console.log('[+]Unable to update');
-                            
-                            return res.status(400).json({
-                                error:false,
-                                message:data
-                            })
-                        }
-                        else{
-                           return sucessPayment(res,data)
-    
-                    }
-                })
-                }
-                
-                else{
-                    stripe.checkout.sessions.retrieve(data.stripe_data.checkoutSessionId).then(c=>{
-                        return res.status(200).json({
-                            error:false,
-                            paymentURI:c.url
-                        })
-                    })
-                    console.log('[+]Amount not paid')
-                }
-
-                
-            
+           
+        return res.json({
+            error:false,
+            data:data
         })
-    
-        
     })
 }
 
