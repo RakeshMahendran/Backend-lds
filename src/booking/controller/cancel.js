@@ -43,6 +43,12 @@ console.log('[+]Cancel pnr init...')
 
 exports.cancel=async (req,res)=>{
     const flight= await FlightBooking.findById(req.bookingId)
+    if(!flight){
+        return res.json({
+            error:true,
+            message:"wrong booking id"
+        })
+    }
     if(flight.payment_status==="unpaid"){
         if(flight.booking_status==="PNR"){
             const response=await cancelPNR(flight.api_pnr)
