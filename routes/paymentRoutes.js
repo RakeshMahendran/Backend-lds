@@ -21,7 +21,7 @@ const {readTicket}= require('../src/booking/controller/readTicket')
 
 router.post('/api/v1/flight/reprice/:itineraryId',getPrice)
 
-router.post('/api/v1/flight/initPayBook/guest',guestCheckout,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/guest',readQuery,guestCheckout,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
 
 router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
 

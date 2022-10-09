@@ -1,10 +1,6 @@
 require('dotenv').config()
-const stripe=require('stripe')(process.env.STRIPE_SECRET_KEY)
-
 
 const FlightBooking=require('../model/flight_booking')
-
-const {ticketing} = require ('./ticketing')
 
 exports.BookingDetails=(req,res,next)=>{
     
@@ -32,23 +28,3 @@ exports.BookingDetails=(req,res,next)=>{
     })
 }
 
-async function sucessPayment(res,data1){
-    data = await ticketing(data1)
-    if(data.ticketingResponse==="TICKET ORDERED SUCCESSFULLY"){
-        data.data.booking_status="confirmed"
-    }
-    else{
-        data.data.booking_status="ticketing"
-    }
-    // console.log('[+]After console log',data)
-    data.data.stripe_data.pay_intentId=undefined
-    data.data.stripe_data.chargeId=undefined
-    data.data.stripe_data.checkoutSessionId=undefined
-    // /* start the ticketing */
-    await data.data.save()
-    console.log('[+]Response from ticketing',data)
-    return res.status(200).json({
-        error:false,
-        message:data
-    })
-}
