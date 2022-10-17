@@ -2,21 +2,44 @@ const FlightBooking = require('../model/flight_booking')
 const FlightSegment = require('../model/flight_segment')
 const Journey = require('../model/flight_journey')
 
+const {bestMarkUp}= require("../../markup/controllers/bestMarkUp")
+
 const fetch = require ('node-fetch')
 
 exports.getPrice=async (req,res)=>{
     console.log('[+]Initilizing Trip pro reprice...')
     const p = req.body
     const price=await repriceit(req.itineraryId,p.AdultCount,p.ChildCount,p.InfantCount)
-
+    let origin = price.Citypairs[0].FlightSegment[0].DepartureLocationCode
+    let destination = price.Citypairs[0].FlightSegment[0].ArrivalLocationCode
+    let airline=price.ValidatingCarrierName
+    console.log('[+]Markup ',origin,destination,airline)
     console.log('[+]Reprice ',price)
-
+    
     if(price.ErrorCode!==undefined){
         return res.json({
             error:true,
             message:price.ErrorText
         })
     }
+
+    const markup = await bestMarkUp(origin,destination,airline)
+    console.log('[+] Best markup ', markup)
+
+    if(markup !==undefined){
+        if(markup.markup_type==="%" ){ 
+            price.Fares.map((e,i)=>{
+                let base_fare=(e.BaseFare*markup.markup_value)/100
+                e.BaseFare=Math.round(base_fare+e.BaseFare)
+            })
+        }
+        else{
+            price.Fares.map((e,i)=>{
+                e.BaseFare+=markup.markup_value
+            })
+        }
+    }
+    
     console.log('[+]Reprice done...')
     res.json({
         error:false,

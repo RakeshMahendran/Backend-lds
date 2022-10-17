@@ -24,6 +24,7 @@ exports.generatePNR=async(req,res,next)=>{
     const bookingRequest= createBookingRequest(booking.flight_passenger_id,booking.passenger_contact_info,booking.target_api)
     const bookingResponse=await bookItinerary(bookingRequest);
     
+    console.log('[+]Pnr response ',bookingResponse)
     if(bookingResponse.ErrorCode!==undefined){
         return res.json({
             error:true,
@@ -33,10 +34,10 @@ exports.generatePNR=async(req,res,next)=>{
     }
     
     booking.api_pnr=bookingResponse.PNR;
-    booking.api_refNum=bookingResponse.ReferenceNumber
+    booking.api_refNum=bookingResponse.ReferenceNumber;
+    
     booking.booking_status="PNR";
     console.log('[+]Pnr generated...')
-    console.log('[+]Pnr response ',bookingResponse)
     await  booking.save()
 
     // const flightSummary = await (await data.).populate('user_id')
@@ -79,7 +80,6 @@ function createBookingRequest(flight_passenger,passenger_contact,itinearyId){
         },
         "BookItineraryPaymentDetail":{
            "PaymentType": "HOLD",
-        
         }
         }
 

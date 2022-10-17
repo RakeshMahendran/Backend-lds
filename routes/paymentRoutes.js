@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-
-
-
 const {generatePNR}=require('../src/booking/controller/generatePNR');
 const {stripeCheckout} = require('../src/booking/controller/stripeCheckout')
 const {guestCheckout} = require('../src/booking/controller/guestCheckout')
@@ -23,7 +20,7 @@ router.post('/api/v1/flight/reprice/:itineraryId',getPrice)
 
 router.post('/api/v1/flight/initPayBook/guest',readQuery,guestCheckout,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
 
-router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,cancel,stripeCheckout)
 
 router.get('/api/v1/flight/cancel/:bookingId',cancel)
 
@@ -34,6 +31,7 @@ router.get('/api/v1/flight/stripeCheckout/:bookingId',stripeCheckout)
 router.get('/api/v1/flight/list',listFlight)
 
 router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
+
 
 router.post('/stripe/session',(req,res)=>{
     console.log('[+]Stripe webhook event activated ')

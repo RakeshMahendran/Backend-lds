@@ -32,6 +32,7 @@ app.use(express.json());
 //import routes
 const userRoute = require('../routes/userRoute');
 const paymentRoutes=require('../routes/paymentRoutes')
+const markup = require('../routes/markupRoutes')
 
 // const auth = require("../src/users/middleware/auth");
 
@@ -42,7 +43,7 @@ const paymentRoutes=require('../routes/paymentRoutes')
 //middlewares
 app.use("/", userRoute);
 app.use("/",paymentRoutes)
-
+app.use("/api/v1/markup",markup)
 
 const PORT = process.env.PORT || 6030;
 app.listen(PORT, () => {

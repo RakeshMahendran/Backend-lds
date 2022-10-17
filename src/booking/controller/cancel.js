@@ -6,7 +6,7 @@ const parseString = require('xml2js').parseString
 
 const FlightBooking = require('../model/flight_booking')
 
-const cancelPNR=async(pnr)=>{
+exports.cancelPNR=async(pnr)=>{
     reqBody='<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://trippro.com/webservices/cancelpnr/v2" xmlns:v21="http://trippro.com/webservices/common/v2">'
     reqBody+='<soapenv:Header />'
     reqBody+=`<soapenv:Body>
