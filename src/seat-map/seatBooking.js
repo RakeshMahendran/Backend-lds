@@ -1,5 +1,5 @@
-const fetch= require('node-fetch');
 const Axios=require('axios')
+
 function createSeatRequest(itinearyId){
     console.log('[+]Creating request body...')
     const seatRequest={
