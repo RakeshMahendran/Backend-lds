@@ -1,36 +1,58 @@
-const Axios=require('axios')
+const fetch = require('node-fetch')
 
-function createSeatRequest(itinearyId){
-    console.log('[+]Creating request body...')
-    const seatRequest={
-        "ItineraryId": itinearyId,
-        }
-        return seatRequest
-}
 
-seatItinerary=async(seatRequest)=>{
-    console.log('[+]Fetch request...')
-    const url="http://map.trippro.com/seatAvailSearch"
+exports.seatMap =async(req,res)=>{
+    console.log('[+]Request to check seat ',req.body)
+    const itineraryid = req.body
+    console.log( itineraryid)
+    const url = "http://map.trippro.com/seatAvailSearch"
     const headers={
         "Content-type":"application/json",
-        "AccessToken":process.env.TRIPPRO_ACCESSTOKEN,
-        "clientId":"TRAVELKA22"
+        "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
     }
-  
-     const response=await Axios.post(url,{
+
+   const settings = async() => await fetch(url,{
         method:"POST",
         headers:headers,
-        body:JSON.stringify(seatRequest)
-     })
-    console.log('[+]Request done...')
-    console.log(response);
-    return response.data
+        body:JSON.stringify(itineraryid)
+    })
+
+     .then(res=>res.json())
+     .then(seatMap=>res.json(seatMap))   
+    
+     settings()
+    // res.then(value=>console.log('[+]', value))
 }
 
 
-exports.seatMap= async(req,res) => {
+// const fetch = require('node-fetch')
 
-     const seatRequest= createSeatRequest()
-     const seatResponse=await seatItinerary(seatRequest);
-      res.json(seatResponse);
-}
+// exports.seatMap = async(req,res)=>{
+//     console.log('[+]Request to check seat ',req.body)
+//     const itineraryid = req.body
+//     console.log( itineraryid)
+//       const seatRequest= createSeatRequest()
+//       const seatResponse=await seatItinerary(seatRequest);
+// }
+
+//  function createSeatRequest(itineraryid) {
+//     const seatRequest = {
+//      "ItineraryId": itineraryid,  
+//     }
+//     return seatRequest
+//  }
+
+// seatItinerary = async (itineraryid) => {
+     
+//        const url = "http://map.trippro.com/seatAvailSearch"
+//        const headers={
+//         "Content-type":"application/json",
+//         "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
+//     }
+//        const settings = await fetch(url,{
+//         method:"POST",
+//         headers:headers,
+//         body:JSON.stringify(itineraryid)
+//     })
+//     return settings.json()
+// }
