@@ -2,25 +2,48 @@ const FlightBooking = require('../model/flight_booking')
 const FlightSegment = require('../model/flight_segment')
 const Journey = require('../model/flight_journey')
 
+const {bestMarkUp}= require("../../markup/controllers/bestMarkUp")
+
 const fetch = require ('node-fetch')
 
 exports.getPrice=async (req,res)=>{
     console.log('[+]Initilizing Trip pro reprice...')
     const p = req.body
     const price=await repriceit(req.itineraryId,p.AdultCount,p.ChildCount,p.InfantCount)
-
+    let origin = price.Citypairs[0].FlightSegment[0].DepartureLocationCode
+    let destination = price.Citypairs[0].FlightSegment[0].ArrivalLocationCode
+    let airline=price.ValidatingCarrierName
+    console.log('[+]Markup ',origin,destination,airline)
     console.log('[+]Reprice ',price)
-
+    
     if(price.ErrorCode!==undefined){
         return res.json({
             error:true,
             message:price.ErrorText
         })
     }
+
+    const markup = await bestMarkUp(origin,destination,airline)
+    console.log('[+] Best markup ', markup)
+
+    if(markup !==undefined){
+        if(markup.markup_type==="%" ){ 
+            price.Fares.map((e,i)=>{
+                let base_fare=(e.BaseFare*markup.markup_value)/100
+                e.BaseFare=Math.round(base_fare+e.BaseFare)
+            })
+        }
+        else{
+            price.Fares.map((e,i)=>{
+                e.BaseFare+=markup.markup_value
+            })
+        }
+    }
+    
     console.log('[+]Reprice done...')
     res.json({
         error:false,
-        Fares:price.Fares
+        Fares:price
     })
 
 }
@@ -63,7 +86,8 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
     if(reprice.ErrorCode!==undefined){
         return res.json({
             error:true,
-            message:reprice.ErrorText
+            message:reprice.ErrorText,
+            bookingId:req.bookingId
         })
     }
     flight.setFare(reprice.Fares,req.paxTypeCount);
@@ -86,6 +110,27 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
     next()
 
 }
+
+// exports.newCheckoutPrice = async (req,res,next)=>{
+//     console.log('[+]Create new checkout init...')
+//     const flight =await FlightBooking.findById(req.bookingId)
+//     const {ADT,CHD,INT}= req.paxTypeCount
+//     const reprice= await repriceit(flight.target_api,ADT,CHD,INT)
+//     console.log('[+]reprice ',reprice)
+//     if(reprice.ErrorCode!==undefined){
+//         return res.json({
+//             error:true,
+//             message:reprice.ErrorText,
+//             bookingId:req.bookingId
+//         })
+//     }
+//     let {base_fare,total_tax}=flight
+//     flight.setFare(reprice.Fares,req.paxTypeCount);
+//     if(base_fare!==flight.base_fare || total_tax !== flight.total_tax){
+//         req.priceChange = true
+//     }
+//     next()
+// }
 
 async function newFlightSegment(e){
     // console.log('[+]Flight segment ',e)

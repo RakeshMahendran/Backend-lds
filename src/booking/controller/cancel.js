@@ -6,7 +6,7 @@ const parseString = require('xml2js').parseString
 
 const FlightBooking = require('../model/flight_booking')
 
-const cancelPNR=async(pnr)=>{
+exports.cancelPNR=async(pnr)=>{
     reqBody='<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://trippro.com/webservices/cancelpnr/v2" xmlns:v21="http://trippro.com/webservices/common/v2">'
     reqBody+='<soapenv:Header />'
     reqBody+=`<soapenv:Body>
@@ -37,20 +37,63 @@ console.log('[+]Cancel pnr init...')
         jsonResponse=result
     })
 
-    return jsonResponse
+    return jsonResponse["soap:Envelope"]["soap:Body"][0]["ns2:CancelPNRResponseBody"][0]
 
 }
 
 exports.cancel=async (req,res)=>{
     const flight= await FlightBooking.findById(req.bookingId)
+    if(!flight){
+        return res.json({
+            error:true,
+            message:"wrong booking id"
+        })
+    }
     if(flight.payment_status==="unpaid"){
         if(flight.booking_status==="PNR"){
             const response=await cancelPNR(flight.api_pnr)
-            res.json({
+            if(response["TPErrorList"]!==undefined){
+                return res.json({
+                    error:false,
+                    message:response["TPErrorList"][0]["TPError"][0]["errorText"][0]
+                })
+            }
+
+            flight.booking_status="cancled"
+            await flight.save();
+
+            return res.json({
                 error:false,
-                data:response
+                // data:response["ns2:CancelPNRResponse"][0][]
+                data:{
+                    pnr:response["ns2:CancelPNRResponse"][0]["ns2:RecordLocator"][0],
+                    status:response["ns2:CancelPNRResponse"][0]["ns2:Status"][0]
+                }
             })
         }
+    }
+
+    if(flight.booking_status==="ticketing"){
+        const response=await cancelPNR(flight.api_pnr)
+        if(response["TPErrorList"]!==undefined){
+            return res.json({
+                error:false,
+                message:response["TPErrorList"][0]["TPError"][0]["errorText"][0]
+            })
+        }
+
+        flight.booking_status="cancled"
+        await flight.save();
+
+        return res.json({
+            error:false,
+            // data:response["ns2:CancelPNRResponse"][0][]
+            data:{
+                pnr:response["ns2:CancelPNRResponse"][0]["ns2:RecordLocator"][0],
+                status:response["ns2:CancelPNRResponse"][0]["ns2:Status"][0]
+            },
+            message:"Refund for your ticket will be processed as per the policy"
+        })
     }
 
     // console.log('[+]Booking detials ',flight)

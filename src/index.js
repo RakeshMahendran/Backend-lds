@@ -24,7 +24,6 @@ app.use(express.json());
   // enabling CORS for all requests
   app.use(cors());
   
-  app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
   
   // adding morgan to log HTTP requests
   app.use(morgan('combined'));
@@ -33,7 +32,8 @@ app.use(express.json());
 //import routes
 const userRoute = require('../routes/userRoute');
 const paymentRoutes=require('../routes/paymentRoutes')
-
+const markup = require('../routes/markupRoutes')
+const seatBookingRoute = require('../routes/seatBookingRoutes')
 // const auth = require("../src/users/middleware/auth");
 
 // app.post("/welcome", auth, (req, res) => {
@@ -43,7 +43,8 @@ const paymentRoutes=require('../routes/paymentRoutes')
 //middlewares
 app.use("/", userRoute);
 app.use("/",paymentRoutes)
-
+app.use("/api/v1/markup",markup)
+app.use("/", seatBookingRoute)
 
 const PORT = process.env.PORT || 6030;
 app.listen(PORT, () => {

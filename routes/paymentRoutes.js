@@ -1,39 +1,42 @@
 const express = require('express');
 const router = express.Router();
 
-
-
-
 const {generatePNR}=require('../src/booking/controller/generatePNR');
 const {stripeCheckout} = require('../src/booking/controller/stripeCheckout')
 const {guestCheckout} = require('../src/booking/controller/guestCheckout')
 const {getPrice,repriceAndAddJourney}= require('../src/booking/controller/reprice')
 const { BookingDetails } = require('../src/booking/controller/bookingDetails');
-const {listFlight, filterFlight} = require('../src/booking/controller/listFlight')
+const {listFlight} = require('../src/booking/controller/listFlight')
 const {cancel}= require('../src/booking/controller/cancel')
 const {createPassengers} = require('../src/booking/controller/createPassengers')
 const {successPayment}= require('../src/booking/controller/successPayment')
-
+const {createNewBooking} = require('../src/booking/controller/createNewBooking')
 const {requiredSignin} = require('../src/users/middleware/requiredSignin')
+const {readTicket}= require('../src/booking/controller/readTicket')
 
 
 
 router.post('/api/v1/flight/reprice/:itineraryId',getPrice)
 
-router.post('/api/v1/flight/initPayBook/guest',guestCheckout,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/guest',readQuery,guestCheckout,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
 
-router.post('/api/v1/flight/initPayBook/:userId',requiredSignin,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,cancel,stripeCheckout)
 
 router.get('/api/v1/flight/cancel/:bookingId',cancel)
 
-router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails)
+router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails,readTicket)
 
-router.get('/api/v1/flight/list/:userId',listFlight)
+router.get('/api/v1/flight/stripeCheckout/:bookingId',stripeCheckout)
+
+router.get('/api/v1/flight/list',listFlight)
 
 router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
 
-router.get('/api/v1/flight/list/:paymentStatus/:bookingStatus',filterFlight)
 
+router.post('/stripe/session',(req,res)=>{
+    console.log('[+]Stripe webhook event activated ')
+    console.log(req.body)
+})
 
 
 // router.post('/api/v1/flight/issueTicket')
@@ -73,6 +76,13 @@ router.param('bookingId',(req,res,next,id)=>{
 
 //request to this route with itinearyid to make the actual booking
 
-
+function readQuery(req,res,next){
+    const q = req.query
+    if(q.bookingId!==undefined){
+        req.bookingId=q.bookingId
+    }
+    // console.log('[+]Querys ',req.query)
+    next()
+}
 
 module.exports=router;

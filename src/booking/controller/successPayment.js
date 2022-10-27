@@ -15,17 +15,31 @@ exports.successPayment=async(req,res)=>{
             })
         }
         // const{pay_intentId,chargeId,checkoutSessionId}=bookingData.stripe_data
+        if(bookingData.booking_status==="init"){
+            return res.json({
+                error:true,
+                message:"PNR is not yet generated"
+            })
+        }
         stripe.checkout.sessions.retrieve(bookingData.stripe_data.checkoutSessionId).then(async(c)=>{
+            console.log('[+]Payment charge ',c)
             if(c.payment_status==="unpaid"){
                 bookingData.payment_status="unpaid"
-                await bookingData.save()
-                return res.json(
-                    {
-                        error:true,
-                        message:"The payment is not yet completed",
-                        paymentURI:c.url
-                    }
-                )
+                if(c.status==="expired"){
+                    //init new checkout session
+                    res.redirect(`/api/v1/flight/updatePaymentPrice/${req.bookingId}`)
+                }
+                else{
+
+                    await bookingData.save()
+                    return res.json(
+                        {
+                            error:true,
+                            message:"The payment is not yet completed",
+                            paymentURI:c.url
+                        }
+                        )
+                }
             }
             else if(c.payment_status==="paid"){
                 bookingData.payment_status="paid"

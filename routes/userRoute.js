@@ -14,7 +14,7 @@ const refresh = require("../src/users/controllers/refreshToken")
 const userDetails = require("../src/users/controllers/users")
 
 // otp verify from controllers
-const otpVerify  = require("../src/users/controllers/otpverify"); 
+const otpVerify  = require("../src/users/controllers/otpVerify"); 
 
 //reset password from controllers
 const request = require("../src/users/controllers/requestPassword")
