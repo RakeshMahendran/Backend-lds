@@ -74,6 +74,9 @@ const flight_bookings = mongoose.Schema({
         pay_intentId:{
             type:String,
         },
+        client_secret:{
+            type:String
+        },
         chargeId:{
             type:String,
         },

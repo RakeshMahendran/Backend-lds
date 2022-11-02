@@ -19,6 +19,7 @@ exports.bestMarkUp = async (origin="",destination="",airline="",user_group_id="1
     }
 
     data.map((e,i)=>{
+        
         let count =0;
         let match=[]
         if(origin===e.origin||e.origin===null){

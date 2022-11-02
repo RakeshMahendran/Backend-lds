@@ -22,8 +22,8 @@ exports.generatePNR=async(req,res,next)=>{
     booking = await booking.populate('flight_passenger_id')
 
     const bookingRequest= createBookingRequest(booking.flight_passenger_id,booking.passenger_contact_info,booking.target_api)
-    const bookingResponse=await bookItinerary(bookingRequest);
-    
+    // const bookingResponse=await bookItinerary(bookingRequest);
+   /* 
     console.log('[+]Pnr response ',bookingResponse)
     if(bookingResponse.ErrorCode!==undefined){
         return res.json({
@@ -32,10 +32,13 @@ exports.generatePNR=async(req,res,next)=>{
             bookingId:req.bookingId
         })
     }
+    */
+    // booking.api_pnr=bookingResponse.PNR;
+    // booking.api_refNum=bookingResponse.ReferenceNumber;
     
-    booking.api_pnr=bookingResponse.PNR;
-    booking.api_refNum=bookingResponse.ReferenceNumber;
-    
+    booking.api_pnr="AAAAAA";
+    booking.api_refNum="1111111111111"
+
     booking.booking_status="PNR";
     console.log('[+]Pnr generated...')
     await  booking.save()

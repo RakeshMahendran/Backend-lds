@@ -14,19 +14,22 @@ const {createNewBooking} = require('../src/booking/controller/createNewBooking')
 const {requiredSignin} = require('../src/users/middleware/requiredSignin')
 const {readTicket}= require('../src/booking/controller/readTicket')
 
-
+const {seat} = require('../src/booking/controller/seat')
+const {stripeElements} = require('../src/booking/controller/stripeElements')
 
 router.post('/api/v1/flight/reprice/:itineraryId',getPrice)
 
-router.post('/api/v1/flight/initPayBook/guest',readQuery,guestCheckout,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/guest',readQuery,guestCheckout,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeElements)
 
-router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,cancel,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
 
 router.get('/api/v1/flight/cancel/:bookingId',cancel)
 
 router.get('/api/v1/flight/bookingDetails/:bookingId',BookingDetails,readTicket)
 
 router.get('/api/v1/flight/stripeCheckout/:bookingId',stripeCheckout)
+
+router.get('/api/v1/flight/stripeElements/:bookingId',stripeElements)
 
 router.get('/api/v1/flight/list',listFlight)
 

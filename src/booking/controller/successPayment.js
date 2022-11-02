@@ -21,6 +21,7 @@ exports.successPayment=async(req,res)=>{
                 message:"PNR is not yet generated"
             })
         }
+        /*
         stripe.checkout.sessions.retrieve(bookingData.stripe_data.checkoutSessionId).then(async(c)=>{
             console.log('[+]Payment charge ',c)
             if(c.payment_status==="unpaid"){
@@ -71,7 +72,34 @@ exports.successPayment=async(req,res)=>{
                 
             }
             
-        })
+        })*/
+        
+        stripe.paymentIntents.retrieve(bookingData.stripe_data.pay_intentId).then(async(c)=>{
+            console.log('[+]payment intent ',c)
+            
+            if(c.status==="requires_payment_method"){
+                bookingData.payment_status="unpaid"
+                await bookingData.save();
+
+                return res.json({
+                    error:false,
+                    paymentIntents:c.client_secret,
+                    cancelLink:`http://localhost:6030/api/v1/flight/cancel/${req.bookingId}`
+                })
+                
+            }
+            else if(c.status==="succeeded"){
+                bookingData.payment_status="paid"
+                await bookingData.save();
+                return res.json({
+                    error:false,
+                    message:"payment is succeeded",
+                    cancelLink:`http://localhost:6030/api/v1/flight/cancel/${req.bookingId}`
+                    
+                })
+            }
+
+          })
     })
 
 }
