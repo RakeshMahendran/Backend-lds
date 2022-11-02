@@ -44,7 +44,7 @@ router.get('/api/v1/auth/details',(userDetails))
 
 //reset password route
 router.post('/api/v1/auth/requestPassword', (request.requestPassword));
-router.post('/api/v1/auth/resetPassowrd', (reset.resetPassword))
+router.post('/api/v1/auth/resetPassword', (reset.resetPassword))
 
 
 

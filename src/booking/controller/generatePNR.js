@@ -1,6 +1,4 @@
 const fetch= require('node-fetch')
-
-
 //Models
 
 const FlightBooking=require('../model/flight_booking')
@@ -8,12 +6,7 @@ const FlightPassengers=require('../model/flight_passenger')
 const FlightSegment = require('../model/flight_segment')
 const Journey = require('../model/flight_journey')
 
-
-
-
 const {User} = require('../../users/models/userModel')
-
-
 
 exports.generatePNR=async(req,res,next)=>{
   

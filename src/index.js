@@ -33,7 +33,7 @@ app.use(express.json());
 const userRoute = require('../routes/userRoute');
 const paymentRoutes=require('../routes/paymentRoutes')
 const markup = require('../routes/markupRoutes')
-
+const seatBookingRoute = require('../routes/seatBookingRoutes')
 // const auth = require("../src/users/middleware/auth");
 
 // app.post("/welcome", auth, (req, res) => {
@@ -44,6 +44,7 @@ const markup = require('../routes/markupRoutes')
 app.use("/", userRoute);
 app.use("/",paymentRoutes)
 app.use("/api/v1/markup",markup)
+app.use("/", seatBookingRoute)
 
 const PORT = process.env.PORT || 6030;
 app.listen(PORT, () => {
