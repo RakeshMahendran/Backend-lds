@@ -21,7 +21,7 @@ router.post('/api/v1/flight/reprice/:itineraryId',getPrice)
 
 router.post('/api/v1/flight/initPayBook/guest',readQuery,guestCheckout,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeElements)
 
-router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeCheckout)
+router.post('/api/v1/flight/initPayBook/:userId',readQuery,requiredSignin,createNewBooking,createPassengers,repriceAndAddJourney,generatePNR,stripeElements)
 
 router.get('/api/v1/flight/cancel/:bookingId',cancel)
 
