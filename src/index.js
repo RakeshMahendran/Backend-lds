@@ -4,7 +4,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
-
 const app = express();
 const connectDB = require("./dbConnect");
 const dotenv = require('dotenv');
@@ -43,7 +42,7 @@ app.use(express.json());
 
 app.use(
 	cors({
-		origin: "http://localhost:3000",
+		origin: "https://www.travelfika.com",
 		methods: "GET,POST,PUT,DELETE",
 		credentials: true,
 	})
@@ -59,23 +58,25 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-
 //import routes
 const userRoute = require('../routes/userRoute');
+const paymentRoutes=require('../routes/paymentRoutes')
+const markup = require('../routes/markupRoutes')
+const seatBookingRoute = require('../routes/seatBookingRoutes')
+// const googleAuthRoute = require('../routes/googleAuthRoute')
 
-app.use("/", googleAuth)
-// const auth = require("../src/users/middleware/auth");
-
-// app.post("/welcome", auth, (req, res) => {
-//   res.status(200).send("Welcome 🙌 ");
-// });
 
 //middlewares
-//app.use("/", userRoute);
-
-
+app.use("/", userRoute);
+app.use("/",paymentRoutes)
+app.use("/api/v1/markup",markup)
+app.use("/", seatBookingRoute)
+app.use("/", googleAuth)
 
 const PORT = process.env.PORT || 6030;
 app.listen(PORT, () => {
   console.log("server is listening at port http://localhost:6030");
 });
+
+
+

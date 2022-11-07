@@ -1,73 +1,58 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
+const router = express.Router();
 
 
-const app = express();
-const connectDB = require("../src/dbConnect");
-const dotenv = require('dotenv');
+//user from controllers
+const user = require("../src/users/controllers/user");
+const updateUser = require("../src/users/controllers/updateUser")
+// auth from controllers
+const auth = require("../src/users/controllers/auth");
 
+//refresh user
+const refresh = require("../src/users/controllers/refreshToken")
 
-// d75d76c0419c7ddd5c8f674a626d6b63328c3e82
-// d75d76c0419c7ddd5c8f674a626d6b63328c3e82
-//Load Config
-dotenv.config();
-connectDB();
+const userDetails = require("../src/users/controllers/users")
 
-const passport = require("passport");
-//const authRoute = require("./routes/auth ");
-const googleAuth = require("../src/users/controllers/googleAuth")
-const cookieSession = require("cookie-session");
-const passportSetup = require("../src/users/utils/passportSetup");
+// otp verify from controllers
+const otpVerify  = require("../src/users/controllers/otpVerify"); 
 
-app.use(express.json());
-  // adding Helmet to enhance your Rest API's security
-  app.use(helmet());
-  // using bodyParser to parse JSON bodies into JS objects
-  app.use(bodyParser.json());
-  // enabling CORS for all requests
-  app.use(cors());
-  // adding morgan to log HTTP requests
-  app.use(morgan('combined'));
+//reset password from controllers
+const request = require("../src/users/controllers/requestPassword")
 
-  app.use(
-	cookieSession({
-		name: "session",
-		keys: ["rakesh"],
-		maxAge: 24 * 60 * 60 * 100,
-	})
-);
+// resend otp from controllers
+const resend = require("../src/users/controllers/resendOTP")
 
-app.use(passport.initialize());
-app.use(passport.session());
+//reset password from controllers
+const reset = require("../src/users/controllers/resetPassword")
 
-app.use(
-	cors({
-		origin: "http://localhost:3000",
-		methods: "GET,POST,PUT,DELETE",
-		credentials: true,
-	})
-);
+//verify email from controllers
+const verification = require("../src/users/controllers/verifyEmail")
 
+const {listUser} = require("../src/users/controllers/listUser")
 
-//import routes
-const userRoute = require('../routes/userRoute');
+//Signup, Login , Logout , Refreshtokens
+router.post('/api/v1/auth/login', (auth.login));
+router.post('/api/v1/auth/signup', (user.signup));
+router.post('/api/v1/auth/profile', (updateUser.updateUserProfile));
+router.post('/api/v1/auth/refreshToken',(refresh.refreshToken) )
+router.delete('/api/v1/auth/logout', (refresh.logout))
 
-app.use("/", googleAuth)
-// const auth = require("../src/users/middleware/auth");
+//List all the user
+router.get('/api/v1/user/list',listUser)
 
-// app.post("/welcome", auth, (req, res) => {
-//   res.status(200).send("Welcome 🙌 ");
-// });
+router.get('/api/v1/auth/details',(userDetails))
 
-//middlewares
-//app.use("/", userRoute);
+//reset password route
+router.post('/api/v1/auth/requestPassword', (request.requestPassword));
+router.post('/api/v1/auth/resetPassword', (reset.resetPassword))
 
 
 
-const PORT = process.env.PORT || 6030;
-app.listen(PORT, () => {
-  console.log("server is listening at port http://localhost:6030");
-});
+//otp verification route
+//router.post('/api/v1/auth/otpVerify', (otpVerify.OTPverify))
+//router.post('/api/v1/auth/resendOTP', (resend.resendOTP));
+
+//verify Email 
+router.get('/api/v1/auth/:id/verify/:token', (verification.verifyEmail))
+
+module.exports= router;
