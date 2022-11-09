@@ -42,12 +42,14 @@ try {
 		if (!verifiedPassword)
 			return res
 				.status(401)
-				.send({ message: "Invalid password" });
+				// .send({ message: "Invalid password" });
+				.json({ error: true, message: "Invalid password" });
 
 		const { accessToken, refreshToken } = await generateTokens(user);
 
 		res.status(200).json({
 			error: false,
+			user: user.firstName,
 			accessToken,
 			refreshToken,
 			message: "Logged in sucessfully",
