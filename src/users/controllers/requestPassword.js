@@ -50,7 +50,7 @@ const requestPassword = async (req, res) => {
          if(data.length) {
         // user exists
         // check if user is verified
-                  if(!data[0].verified) {
+                  if(data[0].verified) { //updated by Agilan
                        res.json({ 
                        status:"FAILED",
                        message: "Email hasn't been verified yet. Check your inbox",
@@ -95,7 +95,7 @@ const sendResetEmail = ({_id,email }, redirectUrl, res) => {
         <p>Don't worry, use the link below to reset it</p>
         <p>This link <b> expires in 60 minutes</b>.</p>
         <p>Press <a href=${
-            redirectUrl + "/" + _id + "/" + resetString
+            "http://localhost:3000" + "/reset-password/" + _id + "/" + resetString
         }> here</a> to proceed.</p>
         <p>This code expires in 1 hour</p>`,
     }
