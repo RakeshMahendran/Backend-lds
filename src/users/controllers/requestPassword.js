@@ -120,10 +120,10 @@ const sendResetEmail = ({_id,email }, redirectUrl, res) => {
                                             <span
                                                 style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"></span>
                                             <p style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                                To reset your password, click the button below. For security reasons, <b>this link will expire in 1 hour.</b>
+                                                To reset your password, click the button below. For security reasons, <b>this link will expire in 1 hours.</b>
                                             </p>
                                             <a href=${
-                redirectUrl + "/reset-password/" + _id + "/" + resetString
+                process.env.BASE_URL + "/reset-password/" + _id + "/" + resetString
             } style="background:#E1A658;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset Password</a>
                                         </td>
                                     </tr>

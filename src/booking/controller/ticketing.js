@@ -11,7 +11,7 @@ exports.ticketing= async (data)=>{
     let ref=data.api_refNum
     if(flight.booking_status==="ticketing"){
     let reqBody='  <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://trippro.com/webservices/orderticket/v2" xmlns:v21="http://trippro.com/webservices/common/v2">'
-    reqBody+=`<soapenv:Header /><soapenv:Body><v2:OrderTicketRequestBody><v21:TPContext><v21:messageId>Order_Ticket</v21:messageId><v21:clientId>${clientId}</v21:clientId></v21:TPContext><v2:OrderTicketRequest><v2:RecordLocator>${pnr}</v2:RecordLocator><v2:ReferenceNumber>${ref}</v2:ReferenceNumber></v2:OrderTicketRequest></v2:OrderTicketRequestBody></soapenv:Body></soapenv:Envelope>`
+    reqBody+=`<soapenv:Header/><soapenv:Body><v2:OrderTicketRequestBody><v21:TPContext><v21:messageId>Order_Ticket</v21:messageId><v21:clientId>${clientId}</v21:clientId></v21:TPContext><v2:OrderTicketRequest><v2:RecordLocator>${pnr}</v2:RecordLocator><v2:ReferenceNumber>${ref}</v2:ReferenceNumber></v2:OrderTicketRequest></v2:OrderTicketRequestBody></soapenv:Body></soapenv:Envelope>`
     let response = await bookTicket(reqBody)
     console.log('[+]Ticket response ',response)
     if(response.OrderTicketResponse!==undefined){
