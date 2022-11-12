@@ -14,7 +14,7 @@ const refresh = require("../src/users/controllers/refreshToken")
 const userDetails = require("../src/users/controllers/users")
 
 // otp verify from controllers
-const otpVerify  = require("../src/users/controllers/otpverify"); 
+const otpVerify  = require("../src/users/controllers/otpVerify"); 
 
 //reset password from controllers
 const request = require("../src/users/controllers/requestPassword")
@@ -44,7 +44,7 @@ router.get('/api/v1/auth/details',(userDetails))
 
 //reset password route
 router.post('/api/v1/auth/requestPassword', (request.requestPassword));
-router.post('/api/v1/auth/resetPassowrd', (reset.resetPassword))
+router.post('/api/v1/auth/resetPassword', (reset.resetPassword))
 
 
 

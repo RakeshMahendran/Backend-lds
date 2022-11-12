@@ -1,6 +1,4 @@
 const fetch= require('node-fetch')
-
-
 //Models
 
 const FlightBooking=require('../model/flight_booking')
@@ -8,12 +6,7 @@ const FlightPassengers=require('../model/flight_passenger')
 const FlightSegment = require('../model/flight_segment')
 const Journey = require('../model/flight_journey')
 
-
-
-
 const {User} = require('../../users/models/userModel')
-
-
 
 exports.generatePNR=async(req,res,next)=>{
   
@@ -22,20 +15,25 @@ exports.generatePNR=async(req,res,next)=>{
     booking = await booking.populate('flight_passenger_id')
 
     const bookingRequest= createBookingRequest(booking.flight_passenger_id,booking.passenger_contact_info,booking.target_api)
-    const bookingResponse=await bookItinerary(bookingRequest);
-    
+    // const bookingResponse=await bookItinerary(bookingRequest);
+   /* 
+    console.log('[+]Pnr response ',bookingResponse)
     if(bookingResponse.ErrorCode!==undefined){
         return res.json({
             error:true,
-            message:bookingResponse.ErrorText
+            message:bookingResponse.ErrorText,
+            bookingId:req.bookingId
         })
     }
+    */
+    // booking.api_pnr=bookingResponse.PNR;
+    // booking.api_refNum=bookingResponse.ReferenceNumber;
     
-    booking.api_pnr=bookingResponse.PNR;
-    booking.api_refNum=bookingResponse.ReferenceNumber
+    booking.api_pnr="AAAAAA";
+    booking.api_refNum="1111111111111"
+
     booking.booking_status="PNR";
     console.log('[+]Pnr generated...')
-    console.log('[+]Pnr response ',bookingResponse)
     await  booking.save()
 
     // const flightSummary = await (await data.).populate('user_id')
@@ -78,7 +76,6 @@ function createBookingRequest(flight_passenger,passenger_contact,itinearyId){
         },
         "BookItineraryPaymentDetail":{
            "PaymentType": "HOLD",
-        
         }
         }
 

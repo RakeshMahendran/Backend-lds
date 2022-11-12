@@ -8,6 +8,7 @@ exports.guestCheckout = (req,res,next)=>{
             console.log('[+]Error data form guest user');
         }
         else if(!data){
+            console.log('[+]Creating new user')
             const user = new User();
             user.email=req.body.PassengerContactInfo.Email
             user.phoneNo= req.body.PassengerContactInfo.PhoneNumber
@@ -15,6 +16,7 @@ exports.guestCheckout = (req,res,next)=>{
             user.role=1
             const guestUser = await user.save();
             req.userId=guestUser._id;
+            console.log('[+]New user id ',req.userId)
             next()
         }
 
