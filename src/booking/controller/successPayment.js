@@ -130,6 +130,10 @@ exports.payintent=(req,res)=>{
         let BookingId = req.body.data.object.metadata.invoice
         console.log('[+]payintent sucess ===> metadata ',req.body.data.object.metadata)
         FlightBooking.findById(BookingId).exec(async(err,data)=>{
+            if(err||!data){
+                console.log('[+]Unable to find the data for the particular id')
+                return
+            }
             data.payment_status="paid"
             // if(data.booking_status==="PNR"){
             //     data.booking_status="ticketing"
@@ -141,4 +145,6 @@ exports.payintent=(req,res)=>{
             //init ticketing
         })
     }
+    res.status(200)
+    res.send()
 }
