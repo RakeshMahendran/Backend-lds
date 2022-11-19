@@ -43,8 +43,9 @@ let transporter = nodemailer.createTransport({
 //request Password Reset
 const requestPassword = async (req, res) => {
    const { email } = req.body
-   let redirectUrl = process.env.BASE_URL
-   console.log(redirectUrl);
+   var redirectUrl = req.header('referer');
+   //let redirectUrl = process.env.BASE_URL
+   //console.log(redirectUrl);
    //check if email exists
     User
    .find({email})
@@ -80,6 +81,7 @@ const requestPassword = async (req, res) => {
 
 const sendResetEmail = ({_id,email }, redirectUrl, res) => {
     const resetString = uuidv4() + _id;
+    //const redirectUrl = windows.location.origin;
   
    // first, we clear all existing reset records
     passwordReset
@@ -122,9 +124,8 @@ const sendResetEmail = ({_id,email }, redirectUrl, res) => {
                                             <p style="color:#455056; font-size:15px;line-height:24px; margin:0;">
                                                 To reset your password, click the button below. For security reasons, <b>this link will expire in 1 hours.</b>
                                             </p>
-                                            <a href=${
-                process.env.BASE_URL + "/reset-password/" + _id + "/" + resetString
-            } style="background:#E1A658;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset Password</a>
+                                            <a href=${redirectUrl + "reset-password/" + _id + "/" + resetString}
+             style="background:#E1A658;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset Password</a>
                                         </td>
                                     </tr>
                                     <tr>
