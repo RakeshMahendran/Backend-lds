@@ -80,9 +80,9 @@ const flight_bookings = mongoose.Schema({
         chargeId:{
             type:String,
         },
-        checkoutSessionId:{
-            type:String
-        }
+        // checkoutSessionId:{
+        //     type:String
+        // }
     },
     passenger_contact_info:{
         phone_number:{
@@ -105,10 +105,10 @@ const flight_bookings = mongoose.Schema({
             ref:'Journey'
         }
     ],
-    booking_address:{
-        
+    transaction:{
+        type:mongoose.Schema.ObjectId,
+        ref:'Transaction'
     }
-
 },{timestamps:true})
 
 
