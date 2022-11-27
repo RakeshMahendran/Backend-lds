@@ -14,3 +14,15 @@ pipelines:
             - ssh $SSH_SERVER_USER@$SSH_SERVER_IP 'cd /var/www/CoreService && npm install'
            # - ssh $SSH_SERVER_USER@$SSH_SERVER_IP 'cd /var/www/CoreService && npm run build'
             - ssh $SSH_SERVER_USER@$SSH_SERVER_IP 'sudo service nginx restart'
+    qa:
+      - step:
+          caches:
+            - node
+          script: # Modify the commands below to build your repository.
+            - apt-get update && apt-get install -y rsync
+            - ssh-keyscan -H $SSH_QA_SERVER_IP >> ~/.ssh/known_hosts
+            - cd $BITBUCKET_CLONE_DIR
+            - rsync -r -v -e ssh . $SSH_SERVER_USER@$SSH_QA_SERVER_IP:/var/www/CoreService --delete-before --exclude '.git'
+            - ssh $SSH_SERVER_USER@$SSH_QA_SERVER_IP 'cd /var/www/CoreService && npm install'
+           # - ssh $SSH_SERVER_USER@$SSH_SERVER_IP 'cd /var/www/CoreService && npm run build'
+            - ssh $SSH_SERVER_USER@$SSH_QA_SERVER_IP 'sudo service nginx restart'
