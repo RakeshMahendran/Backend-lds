@@ -10,18 +10,26 @@ exports.getPrice=async (req,res)=>{
     console.log('[+]Initilizing Trip pro reprice...')
     const p = req.body
     const price=await repriceit(req.itineraryId,p.AdultCount,p.ChildCount,p.InfantCount)
-    let origin = price.Citypairs[0].FlightSegment[0].DepartureLocationCode
-    let destination = price.Citypairs[0].FlightSegment[0].ArrivalLocationCode
-    let airline=price.ValidatingCarrierName
-    console.log('[+]Markup ',origin,destination,airline)
-    console.log('[+]Reprice ',price)
-    
+    console.log('[+]Price ',price)
+    if(price===undefined){
+        return res.json({
+            error:true,
+            message:"Unable to get the reprice data"
+        })
+    }
     if(price.ErrorCode!==undefined){
         return res.json({
             error:true,
             message:price.ErrorText
         })
     }
+    let origin = price.Citypairs[0].FlightSegment[0].DepartureLocationCode
+    let destination = price.Citypairs[0].FlightSegment[0].ArrivalLocationCode
+    let airline=price.ValidatingCarrierName
+    // console.log('[=]',price.Citypairs[0])
+    console.log('[+]Markup ',origin,destination,airline)
+    console.log('[+]Reprice ',price)
+    
 
     const markup = await bestMarkUp(origin,destination,airline)
     console.log('[+] Best markup ', markup)
