@@ -1,23 +1,29 @@
 const mongoose = require('mongoose');
 
 
-const paymentGatewaySchema= new mongoose.Schema({
-    name:{
+const transactionSchema= new mongoose.Schema({
+    payIntentId:{
         type:String,
         required:true
-    }
+    },
+    chargeId:{
+        type:String
+    },
+    clientSecret:{
+        type:String
+    },
+    card:{
+        last4:Number,
+        brand:String,
+        expMonth:Number,
+        expYear:Number
+    },
+    receiptURI:String,
+    amountCharged:Number,
+    currency:String,
+    countryOfPayment:String,
+    status:String
+
 })
 
-
-
-const transactionSchema= new mongoose.Schema({
-    paymentgateway
-    invoice
-    transactionid
-    
-
-})
-
-const Transaction=mongoose.model('Transaction',transactionSchema)
-const PaymentGateway=mongoose.model('PaymentGateway',paymentGatewaySchema)
-module.exports={Transaction,PaymentGateway}
+module.exports=mongoose.model('Transaction',transactionSchema)

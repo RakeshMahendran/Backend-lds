@@ -3,11 +3,12 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 const FlightBooking = require('../model/flight_booking')
 const {ticketing} = require('./ticketing')
+const Transaction = require('../model/transaction')
 
 
 exports.successPayment=async(req,res)=>{
     console.log('[+]Success payment check')
-    FlightBooking.findById(req.bookingId).populate('flight_passenger_id').populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}}).exec((err,bookingData)=>{
+    FlightBooking.findById(req.bookingId).populate('flight_passenger_id').populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}}).populate('transaction').exec(async(err,bookingData)=>{
         if(err||!bookingData){
             console.log('[+]Error',err)
             return res.json({
@@ -15,6 +16,7 @@ exports.successPayment=async(req,res)=>{
                 message:"Unable to find the booking(wrong booking id)"
             })
         }
+
         // const{pay_intentId,chargeId,checkoutSessionId}=bookingData.stripe_data
         if(bookingData.booking_status==="init"){
             return res.json({
@@ -74,13 +76,14 @@ exports.successPayment=async(req,res)=>{
             }
             
         })*/
-        
-        stripe.paymentIntents.retrieve(bookingData.stripe_data.pay_intentId).then(async(c)=>{
+        transaction =await Transaction.findById(bookingData.transaction)
+        stripe.paymentIntents.retrieve(transaction.payIntentId).then(async(c)=>{
             console.log('[+]payment intent ',c)
             
             if(c.status==="requires_payment_method"){
-                bookingData.payment_status="unpaid"
-                await bookingData.save();
+                transaction.status="unpaid"
+                transaction.clientSecret=c.client_secret
+                await transaction.save();
 
                 return res.json({
                     error:true,
@@ -91,8 +94,8 @@ exports.successPayment=async(req,res)=>{
                 
             }
             else if(c.status==="succeeded"){
-                bookingData.payment_status="paid"
-                await bookingData.save();
+                transaction.status="paid"
+                await transaction.save();
 
                 if(bookingData.booking_status==="PNR"){
                     return res.json({
@@ -119,7 +122,7 @@ exports.successPayment=async(req,res)=>{
     })
 }
 
-exports.payintent=(req,res)=>{
+exports.payintent=async(req,res)=>{
     console.log('[+]Stripe webhook event activated ')
     console.log(req.body)
     let type=req.body.type;
@@ -127,24 +130,59 @@ exports.payintent=(req,res)=>{
         console.log('[+]Payintent created ')
     }
     else if(type==='payment_intent.succeeded'){
-        let BookingId = req.body.data.object.metadata.invoice
+        //get the booking id and transaction id from the webhook
+        let BookingId = req.body.data.object.metadata.bookingId
+        let transactionId= req.body.data.object.metadata.invoice
+
         console.log('[+]payintent sucess ===> metadata ',req.body.data.object.metadata)
+        
+        //find the transaction
+        let transaction = await Transaction.findById(transactionId)
+        transaction.status="paid"
+        //updates the transaction from the dets of the webhook of payment success
+        transaction=updateCharges(req.body.data.object.charges.data[0],transaction)
+        await transaction.save()
+         
         FlightBooking.findById(BookingId).exec(async(err,data)=>{
             if(err||!data){
                 console.log('[+]Unable to find the data for the particular id')
                 return
             }
-            data.payment_status="paid"
+
+            /********* Initiate the ticketing once the payment is done ********/
+
             // if(data.booking_status==="PNR"){
             //     data.booking_status="ticketing"
             //     ticketing(data).then(d=>{
             //         console.log("[+]",d)
             //     })
             // }
+
             await data.save();
-            //init ticketing
+            
         })
+    }
+    else if(type ==='payment_intent.requires_action'){
+        console.log('[+]This payment need action')
     }
     res.status(200)
     res.send()
+}
+
+function updateCharges(charge,transaction){
+    //retrive charge with charge id
+
+    let card = charge.payment_method_details
+    console.log('[+]Card dets ',card)
+    transaction.chargeId=charge.id
+    transaction.card.last4=card.card.last4
+    transaction.card.brand=card.card.brand
+    transaction.card.expMonth=card.card.exp_month
+    transaction.card.expYear=card.card.exp_year
+    transaction.receiptURI=charge.receipt_url
+    transaction.amountCharged=charge.amount_captured/100
+    transaction.currency=charge.currency
+    transaction.countryOfPayment=charge.billing_details.address.countryOfPayment
+
+    return transaction
 }
