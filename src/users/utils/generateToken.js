@@ -25,4 +25,4 @@ const generateTokens = async (user) => {
 	}
 };
 
-module.exports =generateTokens;
+module.exports = generateTokens;

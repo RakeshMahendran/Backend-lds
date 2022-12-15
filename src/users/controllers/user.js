@@ -43,7 +43,7 @@ let transporter = nodemailer.createTransport({
     if(error){
         console.log(error)
     } else {
-        console.log("Ready for messages");
+        console.log("Ready for messages"); 
         console.log(success);
     }
 })
@@ -53,7 +53,7 @@ const signup = async (req,res) => {
   
        try {
 		const { error } = signUpBodyValidation(req.body);
-		if (error)
+		if (error) 
 			return res
 				.status(400)
 				.json({ error: true, message: error.details[0].message });

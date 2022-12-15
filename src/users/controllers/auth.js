@@ -17,12 +17,12 @@ const { logInBodyValidation } = require("../utils/validationSchema"
 )
 
 //generate token function from utils
-const generateTokens =require( '../utils/generateToken');
+const { generateTokens } = require('../utils/generateToken');
 
 
-const  login = async (req, res) => {
+const login = async (req, res) => {
 	//Authenticate user
-try {
+	try {
 		const { error } = logInBodyValidation(req.body);
 		if (error)
 			return res
@@ -47,6 +47,7 @@ try {
 
 		const { accessToken, refreshToken } = await generateTokens(user);
 
+
 		res.status(200).json({
 			error: false,
 			user: user.firstName,
@@ -54,14 +55,14 @@ try {
 			refreshToken,
 			message: "Logged in sucessfully",
 		});
-	
+
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ error: true, message: "Internal Server Error" });
 	}
-     
+
 };
 
-module.exports = {login};
+module.exports = { login };
 
 

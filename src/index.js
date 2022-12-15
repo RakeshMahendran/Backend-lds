@@ -19,51 +19,44 @@ const passport = require("passport");
 //const authRoute = require("./routes/auth ");
 const googleAuth = require("./users/controllers/googleAuth")
 const cookieSession = require("cookie-session");
-const session = require ('express-session');
+const session = require('express-session');
 const passportSetup = require("./users/utils/passportSetup");
 
 app.use(express.json());
-  // adding Helmet to enhance your Rest API's security
-  app.use(helmet());
-  // using bodyParser to parse JSON bodies into JS objects
-  app.use(bodyParser.json());
-  // enabling CORS for all requests
-  app.use(cors());
-  // adding morgan to log HTTP requests
-  app.use(morgan('combined'));
-
-  app.use(
-	cookieSession({
-		name: "session",
-		keys: ["rakesh"],
-		maxAge: 24 * 60 * 60 * 100,
-	})
-);
-
+// adding Helmet to enhance your Rest API's security
+app.use(helmet());
+// using bodyParser to parse JSON bodies into JS objects
+app.use(bodyParser.json());
+// enabling CORS for all requests
 app.use(cors());
+// adding morgan to log HTTP requests
+app.use(morgan('combined'));
+
 app.use(
-    session({secret: "secretcode",
-    resave: true,
-    saveUninitialized: true,
-})
+  cookieSession({
+    name: "session",
+    keys: ["rakesh"],
+    maxAge: 24 * 60 * 60 * 100,
+  })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(cors());
 
 //import routes
 const userRoute = require('../routes/userRoute');
-const paymentRoutes=require('../routes/paymentRoutes')
-const markup = require('../routes/markupRoutes')
+const paymentRoutes = require('../routes/paymentRoutes')
+const markup = require('../routes/markupRoutes') 
 const seatBookingRoute = require('../routes/seatBookingRoutes')
 // const googleAuthRoute = require('../routes/googleAuthRoute')
 
 
 //middlewares
 app.use("/", userRoute);
-app.use("/",paymentRoutes)
-app.use("/api/v1/markup",markup)
+app.use("/", paymentRoutes)
+app.use("/api/v1/markup", markup)
 app.use("/", seatBookingRoute)
 app.use("/", googleAuth)
 
