@@ -17,7 +17,7 @@ const { logInBodyValidation } = require("../utils/validationSchema"
 )
 
 //generate token function from utils
-const { generateTokens } = require('../utils/generateToken');
+const  generateTokens  = require('../utils/generateToken');
 
 
 const login = async (req, res) => {
