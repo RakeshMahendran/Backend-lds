@@ -71,16 +71,16 @@ router.get(
 	"/google/callback",
 	// "auth/google/callback",
 	passport.authenticate("google", {
-		successRedirect: "http://localhost:3000/",
-		// successRedirect: "https://www.travelfika.com",
+		// successRedirect: "http://localhost:3000/",
+		successRedirect: "https://www.travelfika.com",
 		failureRedirect: "/login/failed",
 	})
 );
 
 router.get("/logout", (req, res) => {
 	req.logout();
-	res.redirect("http://localhost:3000/");
-	// res.redirect("https://www.travelfika.com");
+	// res.redirect("http://localhost:3000/");
+	res.redirect("https://www.travelfika.com");
 	
 });
 
