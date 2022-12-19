@@ -53,6 +53,7 @@ const login = async (req, res) => {
 			user: user.firstName,
 			accessToken,
 			refreshToken,
+			userId: user._id,
 			message: "Logged in sucessfully",
 		});
 
