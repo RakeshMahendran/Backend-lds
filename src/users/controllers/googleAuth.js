@@ -13,11 +13,11 @@ router.get("/login/success", async (req, res) => {
 			// console.log(req.user)
 
 			const user = await User.findOne({ email: req.user._json.email });
-			console.log(user)
+			console.log(req.user)
 			if (user) {
 				var { accessToken, refreshToken } = await generateTokens(user);
 
-				console.log("Google sign up")
+				console.log("Google sign up-----", accessToken)
 
 
 				return res.status(200).json({
@@ -27,7 +27,7 @@ router.get("/login/success", async (req, res) => {
 					message: "Successfully Logged In",
 					user: req.user,
 				});
-			}
+			} 
 
 			const userNew = await new User({ firstName: req.user._json.given_name, lastName: req.user._json.family_name, email: req.user._json.email }).save();
 
@@ -38,7 +38,7 @@ router.get("/login/success", async (req, res) => {
 
 			var { accessToken, refreshToken } = await generateTokens(userNew);
 
-
+			// console.log("Google sign up")
 			return res.status(200).json({
 				error: false,
 				accessToken,

@@ -29,6 +29,9 @@ app.use(helmet());
 app.use(bodyParser.json());
 // enabling CORS for all requests
 app.use(cors());
+
+
+
 // adding morgan to log HTTP requests
 app.use(morgan('combined'));
 
@@ -43,7 +46,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cors());
 
 //import routes
 const userRoute = require('../routes/userRoute');
