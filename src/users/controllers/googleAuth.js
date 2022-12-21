@@ -26,10 +26,11 @@ router.get("/login/success", async (req, res) => {
 					refreshToken,
 					message: "Successfully Logged In",
 					user: req.user,
+					userId: user._id,
 				});
 			}
 
-			const userNew = await new User({ firstName: req.user._json.given_name, lastName: req.user._json.family_name, email: req.user._json.email }).save();
+			const userNew = await new User({ firstName: req.user._json.given_name, lastName: req.user._json.family_name, email: req.user._json.email, userId: user._id}).save();
 
 			console.log(userNew);
 			// return res
@@ -45,6 +46,7 @@ router.get("/login/success", async (req, res) => {
 				refreshToken,
 				message: "Successfully Logged In",
 				user: req.user,
+				userId: user._id,
 			});
 
 
