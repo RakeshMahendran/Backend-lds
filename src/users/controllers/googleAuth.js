@@ -6,7 +6,7 @@ const generateTokens = require('../utils/generateToken');
 //mongo user model
 const { User } = require('../models/userModel')
 
-router.get("/login/success", async (req, res) => {
+router.get("/api/v1/login/success", async (req, res) => {
 
 	try {
 		if (req.user) {
@@ -60,26 +60,26 @@ router.get("/login/success", async (req, res) => {
 	}
 });
 
-router.get("/login/failed", (req, res) => {
+router.get("/api/v1/login/failed", (req, res) => {
 	res.status(401).json({
 		error: true,
 		message: "Log in failure",
 	});
 });
 
-router.get("/google", passport.authenticate("google", ["profile", "email"]));
+router.get("/api/v1/google", passport.authenticate("google", ["profile", "email"]));
 
 router.get(
-	"/google/callback",
+	"/api/v1/google/callback",
 	// "auth/google/callback",
 	passport.authenticate("google", {
 		// successRedirect: "http://localhost:3000/",
 		successRedirect: "https://www.travelfika.com",
-		failureRedirect: "/login/failed",
+		failureRedirect: "/api/v1/login/failed",
 	})
 );
 
-router.get("/logout", (req, res) => {
+router.get("/api/v1/logout", (req, res) => {
 	req.logout();
 	// res.redirect("http://localhost:3000/");
 	res.redirect("https://www.travelfika.com");
