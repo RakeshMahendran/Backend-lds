@@ -30,7 +30,7 @@ router.get("/api/v1/login/success", async (req, res) => {
 				});
 			} 
 
-			const userNew = await new User({ firstName: req.user._json.given_name, lastName: req.user._json.family_name, email: req.user._json.email, userId: user._id}).save();
+			const userNew = await new User({ firstName: req.user._json.given_name, lastName: req.user._json.family_name, email: req.user._json.email}).save();
 
 			console.log(userNew);
 			// return res
@@ -46,7 +46,7 @@ router.get("/api/v1/login/success", async (req, res) => {
 				refreshToken,
 				message: "Successfully Logged In",
 				user: req.user,
-				userId: user._id,
+				userId: userNew._id,
 			});
 
 
