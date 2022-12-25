@@ -15,7 +15,8 @@ exports.stripeElements=async(req,res)=>{
         let newTransaction = new Transaction();
         const payment_intent = await stripe.paymentIntents.create({
             amount:fares,
-            currency:"inr",
+            currency:process.env.STRIPE_CURRENCY,
+
             metadata:{
                 "bookingId":String(data._id),
                 "invoice":String(newTransaction._id)
