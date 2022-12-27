@@ -28,11 +28,13 @@ app.use(helmet());
 // using bodyParser to parse JSON bodies into JS objects
 app.use(bodyParser.json());
 // enabling CORS for all requests
-app.use(cors({
-  origin: process.env.WEB_FRONTEND_URL,
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: [process.env.WEB_FRONTEND_URL_1, process.env.WEB_FRONTEND_URL_2],
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
 
 
 
