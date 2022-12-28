@@ -121,8 +121,8 @@ flight_bookings.methods={
         this.base_fare+=f.BaseFare*pass[f.PaxType]
         this.total_tax+=f.Taxes*pass[f.PaxType]
        }
-       this.base_fare=Math.round(this.base_fare)
-       this.total_tax=Math.round(this.total_tax)
+       // this.base_fare=Math.round(this.base_fare)
+       // this.total_tax=Math.round(this.total_tax)
        this.gross_fare=this.base_fare+this.total_tax
        this.markup=20
        this.invoice_fare=this.gross_fare+this.markup
