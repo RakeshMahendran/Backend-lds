@@ -56,6 +56,9 @@ const flight_bookings = mongoose.Schema({
     invoice_fare:{
         type:Number
     },
+    pay_fare:{
+        type:Number
+    },
     booking_status:{
         type:String,
         enum:["init","PNR","cancled","ticketing","confirmed"]
@@ -125,7 +128,8 @@ flight_bookings.methods={
        // this.total_tax=Math.round(this.total_tax)
        this.gross_fare=this.base_fare+this.total_tax
        this.markup=20
-       this.invoice_fare=this.gross_fare+this.markup
+       this.pay_fare=(((this.gross_fare+this.markup)/100)*3)
+       this.invoice_fare=(this.gross_fare+this.markup+this.pay_fare).toFixed(2)
     }
 }
 
