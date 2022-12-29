@@ -82,7 +82,6 @@ router.get(
 router.get("/api/v1/logout", (req, res) => {
 	req.logout();
 	// res.redirect("http://localhost:3000/");
-	//small changes
 	res.redirect("https://www.travelfika.com");
 	
 });
