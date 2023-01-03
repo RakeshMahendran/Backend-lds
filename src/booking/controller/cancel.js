@@ -41,6 +41,9 @@ console.log('[+]Cancel pnr init...')
 
 }
 
+
+
+
 exports.cancel=async (req,res)=>{
     const flight= await FlightBooking.findById(req.bookingId)
     if(!flight){
@@ -74,17 +77,28 @@ exports.cancel=async (req,res)=>{
     }
 
     if(flight.booking_status==="ticketing"){
+
+        //check the date for refunc policy
+        
+
+        //make the cancel api call
         const response=await cancelPNR(flight.api_pnr)
+
+        //if the cancel is success init the refund
+
+
+        //else tell the uesr to contact the suport team for further clarification
+
         if(response["TPErrorList"]!==undefined){
             return res.json({
                 error:false,
                 message:response["TPErrorList"][0]["TPError"][0]["errorText"][0]
             })
         }
-
+        
         flight.booking_status="cancled"
         await flight.save();
-
+    
         return res.json({
             error:false,
             // data:response["ns2:CancelPNRResponse"][0][]
