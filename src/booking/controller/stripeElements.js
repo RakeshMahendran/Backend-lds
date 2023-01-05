@@ -19,7 +19,8 @@ exports.stripeElements=async(req,res)=>{
 
             metadata:{
                 "bookingId":String(data._id),
-                "invoice":String(newTransaction._id)
+                "invoice":String(newTransaction._id),
+                "serviceType":process.env.STRIPE_SERVICE1
             }
         })
         data.transaction= newTransaction._id;

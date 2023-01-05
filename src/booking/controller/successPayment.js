@@ -138,11 +138,17 @@ exports.payintent=async(req,res)=>{
         
         //find the transaction
         let transaction = await Transaction.findById(transactionId)
-        transaction.status="paid"
-        //updates the transaction from the dets of the webhook of payment success
-        transaction=updateCharges(req.body.data.object.charges.data[0],transaction)
-        await transaction.save()
-         
+        if(transaction) {
+            transaction.status = "paid"
+            //updates the transaction from the dets of the webhook of payment success
+            transaction = updateCharges(req.body.data.object.charges.data[0], transaction)
+            await transaction.save()
+        }
+        else{
+            res.status(200)
+            res.send("The transaction id is not found in the db")
+            return
+        }
         FlightBooking.findById(BookingId).exec(async(err,data)=>{
             if(err||!data){
                 console.log('[+]Unable to find the data for the particular id')
