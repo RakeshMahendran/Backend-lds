@@ -128,9 +128,9 @@ flight_bookings.methods={
        // this.total_tax=Math.round(this.total_tax)
        this.gross_fare=this.base_fare+this.total_tax
        this.markup=20
-       this.invoice_fare=this.gross_fare+this.markup
-       this.pay_fare=((this.invoice_fare/100)*3).toFixed(2)
-       this.invoice_fare+=this.pay_fare
+       //this.invoice_fare=this.gross_fare+this.markup
+       this.pay_fare=(((this.gross_fare+this.markup)/100)*3).toFixed(2)
+       this.invoice_fare=Math.round(this.gross_fare+this.markup+this.pay_fare)
        
     }
 }
