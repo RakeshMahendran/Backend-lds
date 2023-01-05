@@ -79,6 +79,7 @@ router.param('bookingId',(req,res,next,id)=>{
 //request to this route with itinearyid to make the actual booking
 
 function readQuery(req,res,next){
+    console.log("hello",req.body)
     const q = req.query
     if(q.bookingId!==undefined){
         req.bookingId=q.bookingId

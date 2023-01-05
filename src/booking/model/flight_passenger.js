@@ -50,7 +50,7 @@ const flight_passenger = mongoose.Schema({
         type:String,
     },
     seat_preferrence:{
-        type:String,
+        type:Array,
     },
     frequent_flyer_number:{
         type:String
