@@ -66,26 +66,15 @@ const flight_bookings = mongoose.Schema({
     payment_status:{
         type:String,
         default:"unpaid",
-        enum:["unpaid","paid","partially paid"]
+        enum:["unpaid","paid","refunded"]
         //unpaid,fullpair, partially paid
     },
     currency:{
         type:String,
         require:true
     },
-    stripe_data:{
-        pay_intentId:{
-            type:String,
-        },
-        client_secret:{
-            type:String
-        },
-        chargeId:{
-            type:String,
-        },
-        // checkoutSessionId:{
-        //     type:String
-        // }
+    cancelTimeLimit:{
+        type:Date
     },
     passenger_contact_info:{
         phone_number:{
