@@ -1,12 +1,13 @@
 
 const fetch = require('node-fetch')
-const { notify } = require('../../../routes/paymentRoutes')
 const parseString = require('xml2js').parseString
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 
 const FlightBooking = require('../model/flight_booking')
+const Transaction = require('../model/transaction')
 
-exports.cancelPNR=async(pnr)=>{
+cancelPNR=async(pnr)=>{
     reqBody='<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://trippro.com/webservices/cancelpnr/v2" xmlns:v21="http://trippro.com/webservices/common/v2">'
     reqBody+='<soapenv:Header />'
     reqBody+=`<soapenv:Body>
@@ -41,76 +42,88 @@ console.log('[+]Cancel pnr init...')
 
 }
 
+exports.cancel=async(req,res)=>{
+    try{
+        const flight = await FlightBooking.findById(req.bookingId)
+        if(!flight){
+            throw {"message":`No flightBookings found on this Booking id ${req.bookingId}`,bookingId:req.bookingId}
+        }
 
+        let t= new Date()
+        //checking the 24 hrs time limit
+        console.log('[+]Today date',((flight.cancelTimeLimit-t)/(1000*60)).toFixed(2))
+        t=((flight.cancelTimeLimit-t)/(1000*60)).toFixed(2)
+        if(t<0){
+            throw {
+                message:"the 24 hrs time limit for cancelation is completed"
+            }
+        }
 
+        const response= await cancelPNR(flight.api_pnr)
 
-exports.cancel=async (req,res)=>{
-    const flight= await FlightBooking.findById(req.bookingId)
-    if(!flight){
+        /*if(response["TPErrorList"]){
+            throw response["TPErrorList"][0]["TPError"][0]["errorText"][0]
+        }*/
+        
+        const transaction= await Transaction.findById(flight.transaction)
+        if(!transaction){
+            throw {message:`No transaction is found for the flightBooking BookingID`,bookingId:req.bookingId,"transaction":flight.transaction}
+        }
+        if(transaction.refund.status==="succeeded"){
+            throw "The refund is already done"
+        }
+        if(transaction.status==="unpaid")
+        {
+            throw "The payment is not done completley"
+        }
+        try{
+            const refund = await stripe.refunds.create({
+                payment_intent:transaction.payIntentId
+            })
+
+            transaction.refund.id=refund.id
+            transaction.refund.amount=refund.amount
+            transaction.refund.reason=req.body.reason
+            transaction.refund.status=refund.status
+            transaction.status="refunded"
+            flight.payment_status="refunded"
+            flight.booking_status="cancled"
+            console.log('[+]Refund object ',refund)
+            await flight.save()
+            await transaction.save()
+            return res.json({
+                error:true,
+                message:refund
+            })
+
+        }catch(e){
+            console.log('[+]Error from creating refund ',e.raw)
+            if(e.raw.code==="charge_already_refunded"){
+                const charge = await stripe.charges.retrieve(transaction.chargeId)
+                console.log('[+]Refunded charge ',charge.refunds)
+                let refund=charge.refunds[0]
+                transaction.refund.id=refund.id
+                transaction.refund.amount=refund.amount
+                transaction.refund.reason=req.body.reason
+                transaction.refund.status=refund.status
+                // transaction.status="refunded"
+                flight.payment_status="refunded"
+                flight.booking_status="cancled" 
+
+                await flight.save()
+                await transaction.save()
+                throw "the refund is already done"
+            }
+            throw e.raw.message
+        }
+
+        }catch(e){
+        console.log('[+]'.e);
         return res.json({
             error:true,
-            message:"wrong booking id"
+            message:e
         })
     }
-    if(flight.payment_status==="unpaid"){
-        if(flight.booking_status==="PNR"){
-            const response=await cancelPNR(flight.api_pnr)
-            if(response["TPErrorList"]!==undefined){
-                return res.json({
-                    error:false,
-                    message:response["TPErrorList"][0]["TPError"][0]["errorText"][0]
-                })
-            }
-
-            flight.booking_status="cancled"
-            await flight.save();
-
-            return res.json({
-                error:false,
-                // data:response["ns2:CancelPNRResponse"][0][]
-                data:{
-                    pnr:response["ns2:CancelPNRResponse"][0]["ns2:RecordLocator"][0],
-                    status:response["ns2:CancelPNRResponse"][0]["ns2:Status"][0]
-                }
-            })
-        }
-    }
-
-    if(flight.booking_status==="ticketing"){
-
-        //check the date for refunc policy
-        
-
-        //make the cancel api call
-        const response=await cancelPNR(flight.api_pnr)
-
-        //if the cancel is success init the refund
-
-
-        //else tell the uesr to contact the suport team for further clarification
-
-        if(response["TPErrorList"]!==undefined){
-            return res.json({
-                error:false,
-                message:response["TPErrorList"][0]["TPError"][0]["errorText"][0]
-            })
-        }
-        
-        flight.booking_status="cancled"
-        await flight.save();
-    
-        return res.json({
-            error:false,
-            // data:response["ns2:CancelPNRResponse"][0][]
-            data:{
-                pnr:response["ns2:CancelPNRResponse"][0]["ns2:RecordLocator"][0],
-                status:response["ns2:CancelPNRResponse"][0]["ns2:Status"][0]
-            },
-            message:"Refund for your ticket will be processed as per the policy"
-        })
-    }
-
-    // console.log('[+]Booking detials ',flight)
 }
 
 /*
