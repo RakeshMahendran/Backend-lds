@@ -61,9 +61,9 @@ exports.cancel=async(req,res)=>{
 
         const response= await cancelPNR(flight.api_pnr)
 
-        /*if(response["TPErrorList"]){
+        if(response["TPErrorList"]){
             throw response["TPErrorList"][0]["TPError"][0]["errorText"][0]
-        }*/
+        }
         
         const transaction= await Transaction.findById(flight.transaction)
         if(!transaction){
@@ -92,8 +92,11 @@ exports.cancel=async(req,res)=>{
             await flight.save()
             await transaction.save()
             return res.json({
-                error:true,
-                message:refund
+                error:false,
+                message:"The ticket is cancelled and the refund is successfull..",
+                data:{
+                    amount:refund.amount
+                }
             })
 
         }catch(e){
