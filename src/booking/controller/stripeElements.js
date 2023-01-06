@@ -9,7 +9,7 @@ exports.stripeElements=async(req,res)=>{
             return res.json({error:true,message:"Wrong booking id"})
         }
 
-        const fares = (data.invoice_fare)*100
+        const fares = Math.round((data.invoice_fare)*100)
         console.log('[+]Fares ',fares)
 
         let newTransaction = new Transaction();
@@ -48,6 +48,12 @@ exports.stripeElements=async(req,res)=>{
             error:false,
             paymentIntents:newTransaction.clientSecret,
             fare:fares,
+            fares:{
+                markup:data.markup,
+                pay_fare:data.pay_fare,
+                invoice_fare:data.invoice_fare,
+                passenger:data.flight_passenger_id.length
+            },
             cancelLink:`http://localhost:6030/api/v1/flight/cancel/${req.bookingId}`,
             bookingId:req.bookingId
         })
