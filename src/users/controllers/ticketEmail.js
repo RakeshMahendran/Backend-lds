@@ -14,7 +14,6 @@ let transporter = nodemailer.createTransport({
 
 //Email the ticket details to the user
 router.post("/", async (req, res) => {
-    // const { email,checkIn, checkOut, hotelAddress,roomno, reservationName, cancelDate } = req.body
 
     const email = req.body.email;
     const purchase_date = req.body.purchase_date;
@@ -30,7 +29,7 @@ router.post("/", async (req, res) => {
             style="display:flex;align-items:flex-start;padding:0 10px; column-gap: 30px;">
             <span style="text-transform: uppercase;width:150px;text-align: left;">
                 <b>
-                    Departure Date:
+                    Return Date:
                 </b>
             </span>
             <span
@@ -195,8 +194,7 @@ router.post("/", async (req, res) => {
                                                              </b>
                                                          </span>
                                                          <span
-                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${flight}
-                                                             Room(s)</span>
+                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${flight}</span>
                                                      </div>
                                                  </div>
                                                  <div
@@ -209,8 +207,7 @@ router.post("/", async (req, res) => {
                                                              </b>
                                                          </span>
                                                          <span
-                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${flight_number}
-                                                             Room(s)</span>
+                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${flight_number}</span>
                                                      </div>
                                                  </div>
                                                  <div
@@ -223,8 +220,7 @@ router.post("/", async (req, res) => {
                                                              </b>
                                                          </span>
                                                          <span
-                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${origin}
-                                                             Room(s)</span>
+                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${origin}</span>
                                                      </div>
                                                  </div>
                                                  <div
@@ -237,8 +233,7 @@ router.post("/", async (req, res) => {
                                                              </b>
                                                          </span>
                                                          <span
-                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${destination}
-                                                             Room(s)</span>
+                                                             style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${destination}</span>
                                                      </div>
                                                  </div>
                                                  <div
