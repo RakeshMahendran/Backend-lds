@@ -23,7 +23,7 @@ router.post("/", async (req, res) => {
     const type = req.body.type;
     const depart = req.body.depart;
     let returnDate
-    if (type === "ONE-WAY") {
+    if (type !== "ONE-WAY") {
         returnDate = `<div
         style="color:#455056; font-size:15px;line-height:24px; margin:20px 0 0 0;display:flex;align-items:flex-start;padding:0 10px">
         <div
@@ -184,20 +184,7 @@ router.post("/", async (req, res) => {
                                                      </div>
                                                  </div>
                                                  ${returnDate}
-                                                <div
-                                                        style="color:#455056; font-size:15px;line-height:24px; margin:20px 0 0 0;display:flex;align-items:flex-start;padding:0 10px">
-                                                        <div
-                                                            style="display:flex;align-items:flex-start;padding:0 10px; column-gap: 30px;">
-                                                            <span style="text-transform: uppercase;width:150px;text-align: left;">
-                                                                <b>
-                                                                    Return Date:
-                                                                </b>
-                                                            </span>
-                                                            <span
-                                                                style="color:#455056; font-size:15px;line-height:24px; margin:0;text-align: left;width: 350px;">${returnDate}
-                                                                Room(s)</span>
-                                                        </div>
-                                                    </div>
+                                                
                                                  <div
                                                      style="color:#455056; font-size:15px;line-height:24px; margin:20px 0 0 0;display:flex;align-items:flex-start;padding:0 10px">
                                                      <div
@@ -298,9 +285,16 @@ router.post("/", async (req, res) => {
                                                  </div>
                                                  ${passenger_count}
                                                  ${seat_info}
-                                                 <a href=${book_again}
-                                                     style="background:#E1A658;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Book
-                                                     Again</a>
+                                                 <div style="display:flex;align-items:center;justify-content:center; column-gap:10px;padding:0 10px">
+                                                    <a href=${link}
+                                                     style="background:#E1A658;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">
+                                                        View in Website
+                                                     </a>
+
+                                                     <a href=${book_again}
+                                                    style="background:#E1A658;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Book
+                                                    Again</a>
+                                                 </div> 
                                              </td>
                                          </tr>
                                          <tr>
