@@ -18,6 +18,7 @@ connectDB();
 const passport = require("passport");
 //const authRoute = require("./routes/auth ");
 const googleAuth = require("./users/controllers/googleAuth")
+const emailTicket = require("./users/controllers/ticketEmail")
 const cookieSession = require("cookie-session");
 const session = require('express-session');
 const passportSetup = require("./users/utils/passportSetup");
@@ -61,6 +62,7 @@ app.use("/", paymentRoutes)
 app.use("/api/v1/markup", markup)
 app.use("/", seatBookingRoute)
 app.use("/", googleAuth)
+app.use("/mailTicket", emailTicket)
 
 const PORT = process.env.PORT || 6030;
 app.listen(PORT, () => {
