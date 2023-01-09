@@ -57,7 +57,7 @@ const flight_bookings = mongoose.Schema({
         type:Number
     },
     pay_fare:{
-        type:Number
+       type:Number
     },
     booking_status:{
         type:String,
@@ -66,26 +66,15 @@ const flight_bookings = mongoose.Schema({
     payment_status:{
         type:String,
         default:"unpaid",
-        enum:["unpaid","paid","partially paid"]
+        enum:["unpaid","paid","refunded"]
         //unpaid,fullpair, partially paid
     },
     currency:{
         type:String,
         require:true
     },
-    stripe_data:{
-        pay_intentId:{
-            type:String,
-        },
-        client_secret:{
-            type:String
-        },
-        chargeId:{
-            type:String,
-        },
-        // checkoutSessionId:{
-        //     type:String
-        // }
+    cancelTimeLimit:{
+        type:Date
     },
     passenger_contact_info:{
         phone_number:{
@@ -128,8 +117,10 @@ flight_bookings.methods={
        // this.total_tax=Math.round(this.total_tax)
        this.gross_fare=this.base_fare+this.total_tax
        this.markup=20
-       this.pay_fare=(((this.gross_fare+this.markup)/100)*3)
+       //this.invoice_fare=this.gross_fare+this.markup
+       this.pay_fare=(((this.gross_fare+this.markup)/100)*3).toFixed(2)
        this.invoice_fare=(this.gross_fare+this.markup+this.pay_fare).toFixed(2)
+       
     }
 }
 

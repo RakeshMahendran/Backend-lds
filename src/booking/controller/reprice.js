@@ -88,6 +88,14 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
     console.log('[+]Initiating reprice and add journey...')
 
     const flight =await FlightBooking.findById(req.bookingId)
+    if(!flight){
+        console.log('[+]Unable to process current repriceAndJourney for the booking id ', req.bookingId)
+        res.json({
+            error:true,
+            message:`[+]Unable to process current repriceAndJourney for the booking id ${req.bookingId}`
+        })
+        return
+    }
     const {ADT,CHD,INT}= req.paxTypeCount
     const reprice= await repriceit(flight.target_api,ADT,CHD,INT)
     console.log('[+]reprice ',reprice)
@@ -110,7 +118,7 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
         let j = await newJourney.save();
         flight.flight_journey.push(j._id)
     }
-
+    
     await flight.save()
 
     console.log('[+]Finished reprice and add journey...')
@@ -142,7 +150,7 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
 
 async function newFlightSegment(e){
     // console.log('[+]Flight segment ',e)
-    console.log('[+]Creating new FLight Segment...',e)
+    console.log('[+]Creating new FLight Segment...')
     const newFlightSegment= new FlightSegment()
     
     newFlightSegment.origin_code=e.DepartureLocationCode

@@ -1,3 +1,4 @@
+const { number } = require('joi');
 const mongoose = require('mongoose');
 
 
@@ -18,11 +19,24 @@ const transactionSchema= new mongoose.Schema({
         expMonth:Number,
         expYear:Number
     },
+    refund:{
+        id:String,
+        amount:Number,
+        reason:String,
+        status:{
+            type:String,
+            enum:["pending","succeeded","failed"]
+        }
+    },
     receiptURI:String,
     amountCharged:Number,
     currency:String,
     countryOfPayment:String,
-    status:String
+    status:{
+        type:String,
+        default:"unpaid",
+        enum:["unpaid","paid","refunded"]
+    }
 
 })
 
