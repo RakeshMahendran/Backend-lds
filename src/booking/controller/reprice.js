@@ -23,107 +23,146 @@ exports.getPrice=async (req,res)=>{
             message:price.ErrorText
         })
     }
-    let origin = price.Citypairs[0].FlightSegment[0].DepartureLocationCode
-    let destination = price.Citypairs[0].FlightSegment[0].ArrivalLocationCode
-    let airline=price.ValidatingCarrierName
-    // console.log('[=]',price.Citypairs[0])
-    console.log('[+]Markup ',origin,destination,airline)
-    console.log('[+]Reprice ',price)
+     try
+     {
+        let origin = price.Citypairs[0].FlightSegment[0].DepartureLocationCode
+        let destination = price.Citypairs[0].FlightSegment[0].ArrivalLocationCode
+        let airline=price.ValidatingCarrierName
+        // console.log('[=]',price.Citypairs[0])
+        console.log('[+]Markup ',origin,destination,airline)
+        console.log('[+]Reprice ',price)
+        
     
-
-    const markup = await bestMarkUp(origin,destination,airline)
-    console.log('[+] Best markup ', markup)
-
-    if(markup !==undefined){
-        if(markup.markup_type==="%" ){ 
-            price.Fares.map((e,i)=>{
-                let base_fare=(e.BaseFare*markup.markup_value)/100
-                e.BaseFare=Math.round(base_fare+e.BaseFare)
-            })
-        }
-        else{
-            price.Fares.map((e,i)=>{
-                e.BaseFare+=markup.markup_value
-            })
-        }
-    }
+        const markup = await bestMarkUp(origin,destination,airline)
+        console.log('[+] Best markup ', markup)
     
-    console.log('[+]Reprice done...')
-    res.json({
-        error:false,
-        Fares:price
-    })
+        if(markup !==undefined){
+            if(markup.markup_type==="%" ){ 
+                price.Fares.map((e,i)=>{
+                    let base_fare=(e.BaseFare*markup.markup_value)/100
+                    e.BaseFare=Math.round(base_fare+e.BaseFare)
+                })
+            }
+            else{
+                price.Fares.map((e,i)=>{
+                    e.BaseFare+=markup.markup_value
+                })
+            }
+        }
+        
+        console.log('[+]Reprice done...')
+        res.json({
+            error:false,
+            Fares:price
+        })
+     }
+     catch(e)
+     {
+          res.json(
+              {
+                  error:true,
+                  response:'Error while adding Markup & Checking Reprice',
+                  message:e.message
+              }
+          )
+     }
 
 }
 
 async function repriceit(it,a,c,i){
+   try
+   {
+        const body={
+            "ItineraryId":String(it),
+            "AdultPaxCount":a,
+            "ChildPaxCount":c,
+            "InfantPaxCount":i
+        }
 
-    const body={
-        "ItineraryId":String(it),
-        "AdultPaxCount":a,
-        "ChildPaxCount":c,
-        "InfantPaxCount":i
-     }
+        console.log('[+]Reprice body ',body)
 
-     console.log('[+]Reprice body ',body)
+        const headers={
+            "Content-Type":"application/json",
+            "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
+        }
 
-    const headers={
-        "Content-Type":"application/json",
-        "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
-    }
+        const url="https://map.trippro.com/resources/api/v3/repriceitinerary";
 
-    const url="https://map.trippro.com/resources/api/v3/repriceitinerary";
-
-    const response=await fetch(url,{
-        method:"POST",
-        headers:headers,
-        body:JSON.stringify(body)
-    })
-    return response.json()
+        const response=await fetch(url,{
+            method:"POST",
+            headers:headers,
+            body:JSON.stringify(body)
+        })
+        return response.json()
+   }
+   catch(e)
+   {
+         res.json(
+             {
+                 error:true,
+                 response:"Error while fetching Reprice from trippro",
+                 message:e.message
+             }
+         )
+   }
+     
 
 }
 
 exports.repriceAndAddJourney=async (req,res,next)=>{
 
     console.log('[+]Initiating reprice and add journey...')
+    try
+    {
 
-    const flight =await FlightBooking.findById(req.bookingId)
-    if(!flight){
-        console.log('[+]Unable to process current repriceAndJourney for the booking id ', req.bookingId)
-        res.json({
-            error:true,
-            message:`[+]Unable to process current repriceAndJourney for the booking id ${req.bookingId}`
-        })
-        return
-    }
-    const {ADT,CHD,INT}= req.paxTypeCount
-    const reprice= await repriceit(flight.target_api,ADT,CHD,INT)
-    console.log('[+]reprice ',reprice)
-    if(reprice.ErrorCode!==undefined){
-        return res.json({
-            error:true,
-            message:reprice.ErrorText,
-            bookingId:req.bookingId
-        })
-    }
-    flight.setFare(reprice.Fares,req.paxTypeCount);
-    flight.airline=reprice.ValidatingCarrierName
-
-    for(f of reprice.Citypairs){
-        const newJourney = new Journey()
-        for(fs of f.FlightSegment){
-            const flightSegment = await newFlightSegment(fs)
-            newJourney.journey_segments.push(flightSegment._id)
+        const flight =await FlightBooking.findById(req.bookingId)
+        if(!flight){
+            console.log('[+]Unable to process current repriceAndJourney for the booking id ', req.bookingId)
+            res.json({
+                error:true,
+                message:`[+]Unable to process current repriceAndJourney for the booking id ${req.bookingId}`
+            })
+            return
         }
-        let j = await newJourney.save();
-        flight.flight_journey.push(j._id)
-    }
+        const {ADT,CHD,INT}= req.paxTypeCount
+        const reprice= await repriceit(flight.target_api,ADT,CHD,INT)
+        console.log('[+]reprice ',reprice)
+        if(reprice.ErrorCode!==undefined){
+            return res.json({
+                error:true,
+                message:reprice.ErrorText,
+                bookingId:req.bookingId
+            })
+        }
+        flight.setFare(reprice.Fares,req.paxTypeCount);
+        flight.airline=reprice.ValidatingCarrierName
     
-    await flight.save()
-
-    console.log('[+]Finished reprice and add journey...')
-
-    next()
+        for(f of reprice.Citypairs){
+            const newJourney = new Journey()
+            for(fs of f.FlightSegment){
+                const flightSegment = await newFlightSegment(fs)
+                newJourney.journey_segments.push(flightSegment._id)
+            }
+            let j = await newJourney.save();
+            flight.flight_journey.push(j._id)
+        }
+        
+        await flight.save()
+    
+        console.log('[+]Finished reprice and add journey...')
+    
+        next()
+    }
+    catch(e)
+    {
+           res.json(
+               {
+                   error:true,
+                   response:"Error in Reprice And Add Journey",
+                   message:e.message
+               }
+           )
+    }
 
 }
 

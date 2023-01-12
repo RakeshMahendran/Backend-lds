@@ -3,36 +3,49 @@ const FlightPassengers=require('../model/flight_passenger')
 
 
 exports.createPassengers=async(req,res,next)=>{
-    const newBooking =await FlightBooking.findById(req.bookingId)
-    console.log('[+]New booking ', newBooking)
-    pci=req.body.PassengerContactInfo;
-    newBooking.user_id=req.userId;
-    newBooking.passenger_contact_info.phone_number=pci.PhoneNumber;
-    newBooking.passenger_contact_info.phone_country_code=pci.PhoneCountryCode;
-    newBooking.passenger_contact_info.alternate_phone_number=pci.AlternatePhoneNumber;
-    newBooking.passenger_contact_info.email=pci.Email;
-    newBooking.target_api=req.body.IteneraryRefID;
-    newBooking.currency=req.body.Currency;
+   try
+   {
+        const newBooking =await FlightBooking.findById(req.bookingId)
+        console.log('[+]New booking ', newBooking)
+        pci=req.body.PassengerContactInfo;
+        newBooking.user_id=req.userId;
+        newBooking.passenger_contact_info.phone_number=pci.PhoneNumber;
+        newBooking.passenger_contact_info.phone_country_code=pci.PhoneCountryCode;
+        newBooking.passenger_contact_info.alternate_phone_number=pci.AlternatePhoneNumber;
+        newBooking.passenger_contact_info.email=pci.Email;
+        newBooking.target_api=req.body.IteneraryRefID;
+        newBooking.currency=req.body.Currency;
 
 
-    newBooking.booking_status="init";
+        newBooking.booking_status="init";
 
-    const paxTypeCount={
-        ADT:0,
-        CHD:0,
-        INT:0
-    }
+        const paxTypeCount={
+            ADT:0,
+            CHD:0,
+            INT:0
+        }
 
-    for(p of req.body.PassengerDetails){
-        paxTypeCount[p.PassengerTypeCode]++;
-        const newpassenger= await createNewPassenger(p);
-        newBooking.flight_passenger_id.push(newpassenger._id);
-    }
+        for(p of req.body.PassengerDetails){
+            paxTypeCount[p.PassengerTypeCode]++;
+            const newpassenger= await createNewPassenger(p);
+            newBooking.flight_passenger_id.push(newpassenger._id);
+        }
 
-    const nb=await newBooking.save()
-    req.bookingId=nb._id;
-    req.paxTypeCount=paxTypeCount
-    next()
+        const nb=await newBooking.save()
+        req.bookingId=nb._id;
+        req.paxTypeCount=paxTypeCount
+        next()
+   }
+   catch(e)
+   {
+        res.json(
+            {
+                error:true,
+                response:"Error while creating a Passenger",
+                message:e.message
+            }
+        )
+   }
 
 }
 

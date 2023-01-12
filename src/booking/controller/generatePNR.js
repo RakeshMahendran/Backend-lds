@@ -11,37 +11,50 @@ const {User} = require('../../users/models/userModel')
 exports.generatePNR=async(req,res,next)=>{
   
     console.log('[+]Generating pnr...')
-    let booking = FlightBooking.findById(req.bookingId)
-    booking = await booking.populate('flight_passenger_id')
-
-    const bookingRequest= createBookingRequest(booking.flight_passenger_id,booking.passenger_contact_info,booking.target_api)
-    // const bookingResponse=await bookItinerary(bookingRequest);
-   /* 
-    console.log('[+]Pnr response ',bookingResponse)
-    if(bookingResponse.ErrorCode!==undefined){
-        return res.json({
-            error:true,
-            message:bookingResponse.ErrorText,
-            bookingId:req.bookingId
-        })
+    try
+    {
+        let booking = FlightBooking.findById(req.bookingId)
+        booking = await booking.populate('flight_passenger_id')
+    
+        const bookingRequest= createBookingRequest(booking.flight_passenger_id,booking.passenger_contact_info,booking.target_api)
+        // const bookingResponse=await bookItinerary(bookingRequest);
+       /* 
+        console.log('[+]Pnr response ',bookingResponse)
+        if(bookingResponse.ErrorCode!==undefined){
+            return res.json({
+                error:true,
+                message:bookingResponse.ErrorText,
+                bookingId:req.bookingId
+            })
+        }
+        */
+        // booking.api_pnr=bookingResponse.PNR;
+        // booking.api_refNum=bookingResponse.ReferenceNumber;
+        
+        booking.api_pnr="AAAAAA";
+        booking.api_refNum="1111111111111"
+    
+        booking.booking_status="PNR";
+        console.log('[+]Pnr generated...')
+        await  booking.save()
+    
+        // const flightSummary = await (await data.).populate('user_id')
+    
+        const flightSummary = await (await (await booking.populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}})).populate('user_id')).populate('flight_passenger_id')
+        console.log('[+]FLight summary ',flightSummary)
+        
+        next()
     }
-    */
-    // booking.api_pnr=bookingResponse.PNR;
-    // booking.api_refNum=bookingResponse.ReferenceNumber;
-    
-    booking.api_pnr="AAAAAA";
-    booking.api_refNum="1111111111111"
-
-    booking.booking_status="PNR";
-    console.log('[+]Pnr generated...')
-    await  booking.save()
-
-    // const flightSummary = await (await data.).populate('user_id')
-
-    const flightSummary = await (await (await booking.populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}})).populate('user_id')).populate('flight_passenger_id')
-    console.log('[+]FLight summary ',flightSummary)
-    
-    next()
+    catch(e)
+    {
+           res.json(
+               {
+                   error:true,
+                   response:'Error while generating PNR',
+                   message:e.message
+               }
+           )
+    }
 }
 
 
