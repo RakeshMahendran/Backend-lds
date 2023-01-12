@@ -22,6 +22,7 @@ exports.stripeCreate=async(req,res)=>{
              
               newTransaction.payIntentId=payment_intent.id
               newTransaction.clientSecret=payment_intent.client_secret
+              newTransaction.service=req.body.service
               await newTransaction.save((err,d)=>{
                   console.log('[+]TRANSACTION SAVED')
               })

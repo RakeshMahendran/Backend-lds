@@ -13,6 +13,10 @@ const transactionSchema= new mongoose.Schema({
     clientSecret:{
         type:String
     },
+    service:{
+        type:String,
+        enum:['flights','hotels','activities']
+    },
     card:{
         last4:Number,
         brand:String,

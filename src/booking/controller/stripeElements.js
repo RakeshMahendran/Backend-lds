@@ -14,6 +14,7 @@ exports.stripeElements=async(req,res)=>{
         const stripeResponse=await axios.post(`http://52.91.140.13:88/stripe/create`,{
             amount:fares,
             id:data._id,
+            service:'flights'
         })
         if(stripeResponse.data)
         {
