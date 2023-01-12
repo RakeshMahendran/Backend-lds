@@ -2,7 +2,7 @@
 const fetch = require('node-fetch')
 const parseString = require('xml2js').parseString
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
-
+const axios=require('axios')
 
 const FlightBooking = require('../model/flight_booking')
 const Transaction = require('../model/transaction')
@@ -50,7 +50,7 @@ exports.cancel=async(req,res)=>{
         }
 
         let t= new Date()
-        //checking the 24 hrs time limit
+        // checking the 24 hrs time limit
         console.log('[+]Today date',((flight.cancelTimeLimit-t)/(1000*60)).toFixed(2))
         t=((flight.cancelTimeLimit-t)/(1000*60)).toFixed(2)
         if(t<0){
@@ -64,60 +64,53 @@ exports.cancel=async(req,res)=>{
         if(response["TPErrorList"]){
             throw response["TPErrorList"][0]["TPError"][0]["errorText"][0]
         }
-        
-        const transaction= await Transaction.findById(flight.transaction)
-        if(!transaction){
-            throw {message:`No transaction is found for the flightBooking BookingID`,bookingId:req.bookingId,"transaction":flight.transaction}
-        }
-        if(transaction.refund.status==="succeeded"){
-            throw "The refund is already done"
-        }
-        if(transaction.status==="unpaid")
+        const stripeResponse=await axios.post('http://52.91.140.13:88/stripe/refund',
         {
-            throw "The payment is not done completley"
-        }
-        try{
-            const refund = await stripe.refunds.create({
-                payment_intent:transaction.payIntentId
-            })
-
-            transaction.refund.id=refund.id
-            transaction.refund.amount=refund.amount
-            transaction.refund.reason=req.body.reason
-            transaction.refund.status=refund.status
-            transaction.status="refunded"
-            flight.payment_status="refunded"
-            flight.booking_status="cancled"
-            console.log('[+]Refund object ',refund)
-            await flight.save()
-            await transaction.save()
-            return res.json({
-                error:false,
-                message:"The ticket is cancelled and the refund is successfull..",
-                data:{
-                    amount:refund.amount
-                }
-            })
-
-        }catch(e){
-            console.log('[+]Error from creating refund ',e.raw)
-            if(e.raw.code==="charge_already_refunded"){
-                const charge = await stripe.charges.retrieve(transaction.chargeId)
-                console.log('[+]Refunded charge ',charge.refunds)
-                let refund=charge.refunds[0]
-                transaction.refund.id=refund.id
-                transaction.refund.amount=refund.amount
-                transaction.refund.reason=req.body.reason
-                transaction.refund.status=refund.status
-                // transaction.status="refunded"
-                flight.payment_status="refunded"
-                flight.booking_status="cancled" 
-
+             id:flight.transaction,
+             reason:"Testing purspose"
+        })
+        // console.log(stripeResponse)
+        if(stripeResponse.data)
+        {
+            if(stripeResponse.data.error==false)
+            {
+                flight.payment_status=stripeResponse.data.status.payment
+                flight.booking_status=stripeResponse.data.status.booking
                 await flight.save()
-                await transaction.save()
-                throw "the refund is already done"
+                return res.json({
+                    error:false,
+                    message:"The ticket is cancelled and the refund is successfull..",
+                    data:{
+                        amount:stripeResponse.data.amount
+                    }
+                })
             }
-            throw e.raw.message
+            if(stripeResponse.data.error==true)
+            {
+                 if(stripeResponse.data.message=="the refund is already done")
+                 {
+                    flight.payment_status=stripeResponse.data.status.payment
+                    flight.booking_status=stripeResponse.data.status.booking
+                    await flight.save()
+                    res.json(
+                        {
+                            error:true,
+                            amount:stripeResponse.data.amount,
+                            message:stripeResponse.data.message
+                        }
+                    )
+                 }
+                 else
+                 {
+                     res.json(
+                         {
+                             error:true,
+                             messgae:stripeResponse.data.message
+                         }
+                     )
+                 }
+                 
+            }
         }
 
         }catch(e){
