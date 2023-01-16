@@ -1,6 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 //IMPORTING TRANSACTION SCHEMA
-const Transaction=require('../../model/transaction')
+const Transaction=require('../booking/model/transaction')
 exports.stripeCreate=async(req,res)=>{
     console.log('[+]STRIPE INITIATION')
 //     console.log(req.body)

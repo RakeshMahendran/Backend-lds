@@ -1,5 +1,5 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
-const Transaction = require('../../model/transaction')
+const Transaction = require('../booking/model/transaction')
 
 
 exports.stripeRefund=async(req,res)=>{

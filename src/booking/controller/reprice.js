@@ -11,6 +11,7 @@ exports.getPrice=async (req,res)=>{
     const p = req.body
     const price=await repriceit(req.itineraryId,p.AdultCount,p.ChildCount,p.InfantCount)
     console.log('[+]Price ',price)
+
     if(price===undefined){
         return res.json({
             error:true,
@@ -70,136 +71,99 @@ exports.getPrice=async (req,res)=>{
 }
 
 async function repriceit(it,a,c,i){
-   try
-   {
-        const body={
-            "ItineraryId":String(it),
-            "AdultPaxCount":a,
-            "ChildPaxCount":c,
-            "InfantPaxCount":i
-        }
+
+    const body={
+        "AdultCount":a,
+        "ChildCount":c,
+        "InfantCount":i
+     }
 
         console.log('[+]Reprice body ',body)
 
-        const headers={
-            "Content-Type":"application/json",
-            "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
-        }
+    const headers={
+        "Content-Type":"application/json",
+        "Access_token":"abcd"
+    }
 
-        const url="https://map.trippro.com/resources/api/v3/repriceitinerary";
+    const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/reprice/${it}`;
 
-        const response=await fetch(url,{
-            method:"POST",
-            headers:headers,
-            body:JSON.stringify(body)
-        })
-        return response.json()
-   }
-   catch(e)
-   {
-         res.json(
-             {
-                 error:true,
-                 response:"Error while fetching Reprice from trippro",
-                 message:e.message
-             }
-         )
-   }
-     
+    const response=await fetch(url,{
+        method:"POST",
+        headers:headers,
+        body:JSON.stringify(body)
+    })
+    
+    return response.json()
 
 }
 
 exports.repriceAndAddJourney=async (req,res,next)=>{
 
-    console.log('[+]Initiating reprice and add journey...')
-    try
-    {
+    try{
 
-        const flight =await FlightBooking.findById(req.bookingId)
+        console.log('[+]Reprice and add journey init...')
+
+        const flight = await FlightBooking.findById(req.bookingId)
         if(!flight){
-            console.log('[+]Unable to process current repriceAndJourney for the booking id ', req.bookingId)
-            res.json({
-                error:true,
-                message:`[+]Unable to process current repriceAndJourney for the booking id ${req.bookingId}`
-            })
-            return
+            throw{
+                message:`Unable to process current repriceAndJourney for the booking id ${req.bookingId}`
+            }
         }
         const {ADT,CHD,INT}= req.paxTypeCount
-        const reprice= await repriceit(flight.target_api,ADT,CHD,INT)
-        console.log('[+]reprice ',reprice)
-        if(reprice.ErrorCode!==undefined){
-            return res.json({
-                error:true,
-                message:reprice.ErrorText,
-                bookingId:req.bookingId
-            })
+        const {error,message,Fares,reprice}= await repriceit(flight.target_api,ADT,CHD,INT)
+        
+        console.log('[+]Destructured vars',error,Fares,reprice)        
+        if(error){
+
+            throw{
+                message:message
+            }
         }
-        flight.setFare(reprice.Fares,req.paxTypeCount);
-        flight.airline=reprice.ValidatingCarrierName
-    
-        for(f of reprice.Citypairs){
+               
+
+        flight.setFare(reprice.Result.FareBreakdown,req.paxTypeCount)
+        flight.airline=reprice.Result.MarketingAirlineName
+
+        for(f of reprice.Result.Itinerary){
             const newJourney = new Journey()
-            for(fs of f.FlightSegment){
+            for(fs in f.OriginDestination){
                 const flightSegment = await newFlightSegment(fs)
                 newJourney.journey_segments.push(flightSegment._id)
             }
             let j = await newJourney.save();
             flight.flight_journey.push(j._id)
         }
-        
+
         await flight.save()
-    
+
         console.log('[+]Finished reprice and add journey...')
-    
+
         next()
-    }
-    catch(e)
-    {
-           res.json(
-               {
-                   error:true,
-                   response:"Error in Reprice And Add Journey",
-                   message:e.message
-               }
-           )
+
+    }catch(e){
+        console.log(`[*]${e.message}`)
+        return res.json({
+            error:true,
+            message:e.message
+        })
     }
 
 }
 
-// exports.newCheckoutPrice = async (req,res,next)=>{
-//     console.log('[+]Create new checkout init...')
-//     const flight =await FlightBooking.findById(req.bookingId)
-//     const {ADT,CHD,INT}= req.paxTypeCount
-//     const reprice= await repriceit(flight.target_api,ADT,CHD,INT)
-//     console.log('[+]reprice ',reprice)
-//     if(reprice.ErrorCode!==undefined){
-//         return res.json({
-//             error:true,
-//             message:reprice.ErrorText,
-//             bookingId:req.bookingId
-//         })
-//     }
-//     let {base_fare,total_tax}=flight
-//     flight.setFare(reprice.Fares,req.paxTypeCount);
-//     if(base_fare!==flight.base_fare || total_tax !== flight.total_tax){
-//         req.priceChange = true
-//     }
-//     next()
-// }
 
 async function newFlightSegment(e){
     // console.log('[+]Flight segment ',e)
     console.log('[+]Creating new FLight Segment...')
     const newFlightSegment= new FlightSegment()
     
-    newFlightSegment.origin_code=e.DepartureLocationCode
-    newFlightSegment.destination_code=e.ArrivalLocationCode
-    newFlightSegment.departure_dateTime=e.DepartureDateTime
-    newFlightSegment.arrival_dateTime=e.ArrivalDateTime
+    newFlightSegment.origin_code=e.OriginCode
+    newFlightSegment.destination_code=e.DestinationCode
+    newFlightSegment.departure_dateTime=e.DepartureTime
+    newFlightSegment.arrival_dateTime=e.ArrivalTime
     newFlightSegment.operating_airline_code=e.OperatingAirline
-    newFlightSegment.farebasis=e.FareBasisCode
+    newFlightSegment.farebasis=e.FareBasis
     newFlightSegment.bookingClass=e.BookingClass
-    newFlightSegment.flight_number=e.FlightNumber
+    newFlightSegment.flight_number=e.OperatingFlightNumber
     newFlightSegment.origin_airport_name=e.OriginAirportName
     newFlightSegment.destination_airport_name=e.DestinationAirportName
 

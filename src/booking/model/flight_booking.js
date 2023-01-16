@@ -110,8 +110,8 @@ flight_bookings.methods={
         console.log('[+]fares',fares)
         this.base_fare=this.total_tax=this.gross_fare=this.invoice_fare=0
        for(f of fares){
-        this.base_fare+=f.BaseFare*pass[f.PaxType]
-        this.total_tax+=f.Taxes*pass[f.PaxType]
+        this.base_fare+=f.BaseFare*pass[f.PassengerType]
+        this.total_tax+=f.TotalTax*pass[f.PassengerType]
        }
        // this.base_fare=Math.round(this.base_fare)
        // this.total_tax=Math.round(this.total_tax)

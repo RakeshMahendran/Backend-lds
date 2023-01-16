@@ -15,8 +15,8 @@ const {requiredSignin} = require('../src/users/middleware/requiredSignin')
 const {readTicket}= require('../src/booking/controller/readTicket')
 
 //CENTRALIZED STRIPE
-const {stripeCreate}=require('../src/booking/controller/stripe/stripe.create')
-const {stripeRefund}=require('../src/booking/controller/stripe/stripe.refund')
+const {stripeCreate}=require('../src/stripe/stripe.create')
+const {stripeRefund}=require('../src/stripe/stripe.refund')
 
 
 const {seat} = require('../src/booking/controller/seat')

@@ -11,55 +11,54 @@ const {User} = require('../../users/models/userModel')
 exports.generatePNR=async(req,res,next)=>{
   
     console.log('[+]Generating pnr...')
-    try
-    {
-        let booking = FlightBooking.findById(req.bookingId)
-        booking = await booking.populate('flight_passenger_id')
-    
-        const bookingRequest= createBookingRequest(booking.flight_passenger_id,booking.passenger_contact_info,booking.target_api)
-        // const bookingResponse=await bookItinerary(bookingRequest);
-       /* 
-        console.log('[+]Pnr response ',bookingResponse)
-        if(bookingResponse.ErrorCode!==undefined){
-            return res.json({
-                error:true,
-                message:bookingResponse.ErrorText,
-                bookingId:req.bookingId
-            })
-        }
-        */
-        // booking.api_pnr=bookingResponse.PNR;
-        // booking.api_refNum=bookingResponse.ReferenceNumber;
-        
-        booking.api_pnr="AAAAAA";
-        booking.api_refNum="1111111111111"
-    
-        booking.booking_status="PNR";
-        console.log('[+]Pnr generated...')
-        await  booking.save()
-    
-        // const flightSummary = await (await data.).populate('user_id')
-    
-        const flightSummary = await (await (await booking.populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}})).populate('user_id')).populate('flight_passenger_id')
-        console.log('[+]FLight summary ',flightSummary)
-        
-        next()
+    let booking = FlightBooking.findById(req.bookingId)
+    booking = await booking.populate('flight_passenger_id')
+
+    const body={
+        flight_passenger_id:booking.flight_passenger_id,
+        passenger_contact_info:booking.passenger_contact_info,
+        target_api:booking.target_api
     }
-    catch(e)
-    {
-           res.json(
-               {
-                   error:true,
-                   response:'Error while generating PNR',
-                   message:e.message
-               }
-           )
+
+    const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/generatePNR`;
+    
+    const bookingResponse =await fetch(url,{
+        method:'POST',
+        headers: {
+            'Content-Type': 'application/json'
+          },
+        body:JSON.stringify(body)
+    })
+
+    console.log('[+]Booking response ',bookingResponse)
+    
+   /* 
+    console.log('[+]Pnr response ',bookingResponse)
+    if(bookingResponse.ErrorCode!==undefined){
+        return res.json({
+            error:true,
+            message:bookingResponse.ErrorText,
+            bookingId:req.bookingId
+        })
     }
+    */
+    // booking.api_pnr=bookingResponse.PNR;
+    // booking.api_refNum=bookingResponse.ReferenceNumber;
+    
+    booking.api_pnr=bookingResponse.body.api_pnr
+    booking.api_refNum=bookingResponse.body.api_refNum
+
+    booking.booking_status="PNR";
+    console.log('[+]Pnr generated...')
+    await  booking.save()
+
+    // const flightSummary = await (await data.).populate('user_id')
+
+    const flightSummary = await (await (await booking.populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}})).populate('user_id')).populate('flight_passenger_id')
+    console.log('[+]FLight summary ',flightSummary)
+    
+    next()
 }
-
-
-
-
 
 
 

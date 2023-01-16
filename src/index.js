@@ -8,6 +8,9 @@ const app = express();
 const connectDB = require("./dbConnect");
 const dotenv = require('dotenv');
 
+const {payintent} = require("./booking/controller/successPayment")
+const {checkWebhookSignature}= require("./stripe/webhookCheck")
+const {webhookManager} = require("./stripe/webhookManager")
 
 // d75d76c0419c7ddd5c8f674a626d6b63328c3e82
 // d75d76c0419c7ddd5c8f674a626d6b63328c3e82
@@ -22,6 +25,8 @@ const emailTicket = require("./users/controllers/ticketEmail")
 const cookieSession = require("cookie-session");
 const session = require('express-session');
 const passportSetup = require("./users/utils/passportSetup");
+
+app.post('/stripe/session', express.raw({type: 'application/json'}),checkWebhookSignature,webhookManager )
 
 app.use(express.json());
 // adding Helmet to enhance your Rest API's security

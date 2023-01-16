@@ -24,8 +24,7 @@ exports.successPayment=async(req,res)=>{
                 message:"PNR is not yet generated"
             })
         }
-        /*
-        stripe.checkout.sessions.retrieve(bookingData.stripe_data.checkoutSessionId).then(async(c)=>{
+        /*stripe.checkout.sessions.retrieve(bookingData.stripe_data.checkoutSessionId).then(async(c)=>{
             console.log('[+]Payment charge ',c)
             if(c.payment_status==="unpaid"){
                 bookingData.payment_status="unpaid"
@@ -123,9 +122,10 @@ exports.successPayment=async(req,res)=>{
 }
 
 exports.payintent=async(req,res)=>{
-    console.log('[+]Stripe webhook event activated ')
-    console.log(req.body)
-    let type=req.body.type;
+    
+    console.log('[+] webBody ',req.body)    
+    let type = req.body.type
+
     if(type==="payment_intent.created"){
         console.log('[+]Payintent created ')
     }
@@ -140,6 +140,7 @@ exports.payintent=async(req,res)=>{
         let transaction = await Transaction.findById(transactionId)
         if(transaction) {
             transaction.status = "paid"
+
             //updates the transaction from the dets of the webhook of payment success
             transaction = updateCharges(req.body.data.object.charges.data[0], transaction)
             await transaction.save()
@@ -154,16 +155,21 @@ exports.payintent=async(req,res)=>{
                 console.log('[+]Unable to find the data for the particular id')
                 return
             }
-
+            data.payment_status="paid"
             /********* Initiate the ticketing once the payment is done ********/
 
             // if(data.booking_status==="PNR"){
             //     data.booking_status="ticketing"
             //     ticketing(data).then(d=>{
             //         console.log("[+]",d)
+
+                        /* once the ticketing is done and successfull */
+                        let t= new Date()
+                        t.setSeconds(t.getSeconds()+(24*60*60))
+                        data.cancelTimeLimit=t
             //     })
             // }
-
+            
             await data.save();
             
         })
@@ -173,6 +179,7 @@ exports.payintent=async(req,res)=>{
     }
     res.status(200)
     res.send()
+    
 }
 
 function updateCharges(charge,transaction){
