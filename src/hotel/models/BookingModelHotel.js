@@ -138,7 +138,12 @@ const  hotel_bookings = mongoose.Schema({
           ref:'Transaction'
         },
         name: {
-          type: String
+          firstName: {
+            type: String,
+          },
+          lastName: {
+            type: String,
+          }
         },
         categoryCode: {
           type: Number

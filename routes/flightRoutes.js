@@ -14,6 +14,11 @@ const {createNewBooking} = require('../src/flight/controller/createNewBooking')
 const {requiredSignin} = require('../src/users/middleware/requiredSignin')
 const {readTicket}= require('../src/flight/controller/readTicket')
 
+//FOR HOTEL
+
+const {storeCustomerInfo} = require("../src/hotel/controllers/storeCustomerInfo")
+const {storeBookingInfo} = require("../src/hotel/controllers/storeBookingInfo")
+
 //CENTRALIZED STRIPE
 const {stripeCreate}=require('../src/stripe/stripe.create')
 const {stripeRefund}=require('../src/stripe/stripe.refund')
@@ -40,6 +45,9 @@ router.get('/api/v1/flight/stripeElements/:bookingId',stripeElements)
 router.get('/api/v1/flight/list',listFlight)
 
 router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
+
+// FOR HOTEL:
+router.post('/api/v1/hotel/initPayBook/guest',storeCustomerInfo,storeBookingInfo)
 
 
 //CENTRALIZED STRIPE
