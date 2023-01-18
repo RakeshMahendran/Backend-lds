@@ -1,7 +1,7 @@
-const Transaction = require('../booking/model/transaction')
-const FlightBooking= require('../booking/model/flight_booking')
+const Transaction = require('../flight/model/transaction')
+const FlightBooking= require('../flight/model/flight_booking')
 
-const {ticketing}= require("../booking/controller/ticketing")
+const {ticketing}= require("../flight/controller/ticketing")
 
 exports.webhookManager=async(req,res)=>{
     let type=req.body.type

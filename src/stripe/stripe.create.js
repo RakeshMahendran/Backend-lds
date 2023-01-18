@@ -1,6 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 //IMPORTING TRANSACTION SCHEMA
-const Transaction=require('../booking/model/transaction')
+const Transaction=require('../flight/model/transaction')
 exports.stripeCreate=async(req,res)=>{
     console.log('[+]STRIPE INITIATION')
 //     console.log(req.body)
@@ -13,7 +13,7 @@ exports.stripeCreate=async(req,res)=>{
                   metadata:{
                       "bookingId":String(req.body.id),
                       "invoice":String(newTransaction._id),
-                      "serviceType":process.env.STRIPE_SERVICE1
+                      "serviceType":req.body.service
                   }
               })
                          //   console.log("ID",payment_intent.id)

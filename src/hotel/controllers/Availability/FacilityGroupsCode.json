@@ -1,0 +1,89 @@
+[{
+  "code": 10,
+  "description": "Location"
+  }
+,{
+  "code": 100,
+  "description": "Points of interest"
+  }
+,{
+  "code": 20,
+  "description": "Hotel type"
+  }
+,{
+  "code": 30,
+  "description": "Methods of payment"
+  }
+,{
+  "code": 40,
+  "description": "Distances (in meters)"
+  }
+,{
+  "code": 60,
+  "description": "Room facilities (Standard room)"
+  }
+,{
+  "code": 61,
+  "description": "Room Distribution"
+  }
+,{
+  "code": 62,
+  "description": "Room distribution Alternative"
+  }
+,{
+  "code": 70,
+  "description": "Facilities"
+  }
+,{
+  "code": 71,
+  "description": "Catering"
+  }
+,{
+  "code": 72,
+  "description": "Business"
+  }
+,{
+  "code": 73,
+  "description": "Entertainment"
+  }
+,{
+  "code": 74,
+  "description": "Health"
+  }
+,{
+  "code": 75,
+  "description": "Green Programmes - Worldwide"
+  }
+,{
+  "code": 76,
+  "description": "Green Programmes - Europe"
+  }
+,{
+  "code": 77,
+  "description": "Green Programmes - Americas"
+  }
+,{
+  "code": 78,
+  "description": "Green Programmes - Asia-Pacific"
+  }
+,{
+  "code": 79,
+  "description": "Green Programmes - Africa"
+  }
+,{
+  "code": 80,
+  "description": "Meals"
+  }
+,{
+  "code": 85,
+  "description": "Things to keep in mind"
+  }
+,{
+  "code": 90,
+  "description": "Sports"
+  }
+,{
+  "code": 91,
+  "description": "Healthy & Safety (COVID)"
+  }
+]

@@ -1,27 +1,27 @@
 const express = require('express');
 const router = express.Router();
 
-const {generatePNR}=require('../src/booking/controller/generatePNR');
-const {stripeCheckout} = require('../src/booking/controller/stripeCheckout')
-const {guestCheckout} = require('../src/booking/controller/guestCheckout')
-const {getPrice,repriceAndAddJourney}= require('../src/booking/controller/reprice')
-const { BookingDetails } = require('../src/booking/controller/bookingDetails');
-const {listFlight} = require('../src/booking/controller/listFlight')
-const {cancel}= require('../src/booking/controller/cancel')
-const {createPassengers} = require('../src/booking/controller/createPassengers')
-const {successPayment,payintent}= require('../src/booking/controller/successPayment')
-const {createNewBooking} = require('../src/booking/controller/createNewBooking')
+const {generatePNR}=require('../src/flight/controller/generatePNR');
+const {stripeCheckout} = require('../src/flight/controller/stripeCheckout')
+const {guestCheckout} = require('../src/flight/controller/guestCheckout')
+const {getPrice,repriceAndAddJourney}= require('../src/flight/controller/reprice')
+const { BookingDetails } = require('../src/flight/controller/bookingDetails');
+const {listFlight} = require('../src/flight/controller/listFlight')
+const {cancel}= require('../src/flight/controller/cancel')
+const {createPassengers} = require('../src/flight/controller/createPassengers')
+const {successPayment}= require('../src/flight/controller/successPayment')
+const {createNewBooking} = require('../src/flight/controller/createNewBooking')
 const {requiredSignin} = require('../src/users/middleware/requiredSignin')
-const {readTicket}= require('../src/booking/controller/readTicket')
+const {readTicket}= require('../src/flight/controller/readTicket')
 
 //CENTRALIZED STRIPE
 const {stripeCreate}=require('../src/stripe/stripe.create')
 const {stripeRefund}=require('../src/stripe/stripe.refund')
 
 
-const {seat} = require('../src/booking/controller/seat')
-const {stripeElements} = require('../src/booking/controller/stripeElements');
-const { types } = require('joi');
+
+const {stripeElements} = require('../src/flight/controller/stripeElements');
+
 
 router.post('/api/v1/flight/reprice/:itineraryId',getPrice)
 
@@ -42,7 +42,6 @@ router.get('/api/v1/flight/list',listFlight)
 router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
 
 
-router.post('/stripe/session', payintent )
 //CENTRALIZED STRIPE
 router.post('/stripe/create',stripeCreate)
 

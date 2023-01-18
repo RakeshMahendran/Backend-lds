@@ -8,7 +8,6 @@ const app = express();
 const connectDB = require("./dbConnect");
 const dotenv = require('dotenv');
 
-const {payintent} = require("./booking/controller/successPayment")
 const {checkWebhookSignature}= require("./stripe/webhookCheck")
 const {webhookManager} = require("./stripe/webhookManager")
 
@@ -55,7 +54,7 @@ app.use(passport.session());
 
 //import routes
 const userRoute = require('../routes/userRoute');
-const paymentRoutes = require('../routes/paymentRoutes')
+const flightRoutes = require('../routes/flightRoutes')
 const markup = require('../routes/markupRoutes') 
 const seatBookingRoute = require('../routes/seatBookingRoutes')
 // const googleAuthRoute = require('../routes/googleAuthRoute')
@@ -63,7 +62,7 @@ const seatBookingRoute = require('../routes/seatBookingRoutes')
 
 //middlewares
 app.use("/", userRoute);
-app.use("/", paymentRoutes)
+app.use("/", flightRoutes)
 app.use("/api/v1/markup", markup)
 app.use("/", seatBookingRoute)
 app.use("/", googleAuth)
