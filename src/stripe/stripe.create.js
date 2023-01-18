@@ -13,7 +13,8 @@ exports.stripeCreate=async(req,res)=>{
                   metadata:{
                       "bookingId":String(req.body.id),
                       "invoice":String(newTransaction._id),
-                      "serviceType":process.env.STRIPE_SERVICE1
+                  //     "serviceType":process.env.STRIPE_SERVICE1
+                      "serviceType":req.body.service
                   }
               })
                          //   console.log("ID",payment_intent.id)

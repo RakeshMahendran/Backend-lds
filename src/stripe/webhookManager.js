@@ -2,79 +2,93 @@ const Transaction = require('../booking/model/transaction')
 const FlightBooking= require('../booking/model/flight_booking')
 
 const {ticketing}= require("../booking/controller/ticketing")
+const { default: axios } = require('axios')
 
 exports.webhookManager=async(req,res)=>{
-    let type=req.body.type
-    
-    console.log('[+]payintent sucess ===> metadata ',req.body.data.object.metadata)
-    let bookingId=req.body.data.object.metadata.bookingId
-    let transactionId= req.body.data.object.metadata.invoice
-    let service= req.body.data.object.metadata.serviceType
-    switch(type){
-        case "payment_intent.created":
-            console.log('[+]Payintent created for ',service,'service ...')
-            break;
+    try{
 
-        case "payment_intent.succeeded":
-            let transaction = await Transaction.findById(transactionId)
-            if(transaction) {
-                transaction.status = "paid"
+        let type=req.body.type
+        
+        console.log('[+]payintent sucess ===> metadata ',req.body.data.object.metadata)
+        let bookingId=req.body.data.object.metadata.bookingId
+        let transactionId= req.body.data.object.metadata.invoice
+        let service= req.body.data.object.metadata.serviceType
+        switch(type){
+            case "payment_intent.created":
+                console.log('[+]Payintent created for ',service,'service ...')
+                break;
     
-                //updates the transaction from the dets of the webhook of payment success
+            case "payment_intent.succeeded":
+                let transaction = await Transaction.findById(transactionId)
+                if(transaction) {
+                    transaction.status = "paid"
+        
+                    //updates the transaction from the dets of the webhook of payment success
 
-                transaction = updateCharges(req.body.data.object.charges.data[0], transaction)
-                await transaction.save()
-            }
-            else{
+                    transaction = updateCharges(req.body.data.object.charges.data[0], transaction)
+                    await transaction.save()
+                }
+                else{
                 res.status(200)
-                res.send("The transaction id is not found in the db")
-                return
-            }
-            console.log(`[=]payment succeeded for service ${service}...`)
-            switch(service){
-                case "flight":{
-                    FlightBooking.findById(bookingId).exec(async(err,data)=>{
-                        if(err||!data){
-                            console.log('[+]Unable to find the data for the particular id')
-                            return
-                        }
-                        data.payment_status="paid"
-                        /********* Initiate the ticketing once the payment is done ********/
-            
-                        if(data.booking_status==="PNR"){
-                            data.booking_status="ticketing"
-                            //ticketing(data).then(d=>{
-                                // console.log("[+]",d)
-            
-                                    /* once the ticketing is done and successfull */
-                                    let t= new Date()
-                                    t.setSeconds(t.getSeconds()+(24*60*60))
-                                    data.cancelTimeLimit=t
-                            //})
-                        }
-                        await data.save();
-                        console.log('[+]Flight saved ',data)
-                        console.log('[+]Transaction ',transaction)                      
-                    })
+                    res.send("The transaction id is not found in the db")
+                    return
                 }
-                    break;
-                case "hotel":{
-
+                console.log(`[=]payment succeeded for service ${service}...`)
+                switch(service){
+                    case "flight":{
+                        FlightBooking.findById(bookingId).exec(async(err,data)=>{
+                            if(err||!data){
+                                console.log('[+]Unable to find the data for the particular id')
+                                return
+                            }
+                            data.payment_status="paid"
+                            /********* Initiate the ticketing once the payment is done ********/
+                
+                            if(data.booking_status==="PNR"){
+                                data.booking_status="ticketing"
+                                //ticketing(data).then(d=>{
+                                    // console.log("[+]",d)
+                
+                                        /* once the ticketing is done and successfull */
+                                        let t= new Date()
+                                        t.setSeconds(t.getSeconds()+(24*60*60))
+                                        data.cancelTimeLimit=t
+                                //})
+                            }
+                            await data.save();
+                            console.log('[+]Flight saved ',data)
+                            console.log('[+]Transaction ',transaction)                      
+                        })
+                    }
+                        break;
+                    case "hotel":{
+                        console.log("Hotel webhook");
+                        data = JSON.stringify(req.body)
+                        console.log("hotel webHook activated.....");
+                        axios.post(`http://52.91.140.13/api/v1/hotel/webhook`,data)
+                    }
+                        break;
+                    case "cab":{
+    
+                    }
+                        break;
                 }
-                    break;
-                case "cab":{
-
-                }
-                    break;
-            }
-            break;
-        case "payment_intent.requires_action":
-            console.log('[+]This payment need action')
-            break;
+                break;
+            case "payment_intent.requires_action":
+                console.log('[+]This payment need action')
+                break;
+        }
+    
+        res.status(200)
+        res.send()
+    }catch(error){
+        console.log(error.message)
+        res.json({
+            error:true,
+            message: error.message,
+            file: "webhookManager.js"
+        })
     }
-
-    res.status(200)
-    res.send()
 
 }
 
