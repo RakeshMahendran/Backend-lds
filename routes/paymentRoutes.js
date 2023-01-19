@@ -18,6 +18,7 @@ const {readTicket}= require('../src/booking/controller/readTicket')
 
 const {storeCustomerInfo} = require("../src/hotel/controllers/storeCustomerInfo")
 const {storeBookingInfo} = require("../src/hotel/controllers/storeBookingInfo")
+const {sucessPaymentHotel} = require("../src/hotel/controllers/sucessPaymentHotel")
 
 //CENTRALIZED STRIPE
 const {stripeCreate}=require('../src/stripe/stripe.create')
@@ -48,6 +49,8 @@ router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
 
 // FOR HOTEL:
 router.post('/api/v1/hotel/initPayBook/guest',storeCustomerInfo,storeBookingInfo)
+
+router.post('/api/v1/hotel/paymentSucess', sucessPaymentHotel)
 
 
 router.post('/stripe/session', payintent )

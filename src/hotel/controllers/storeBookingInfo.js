@@ -10,6 +10,7 @@ exports.storeBookingInfo = async(req,res,next) =>{
         newBooking.payment_status = "unpaid"
         newBooking.payment_method = req.body.paymentType
         newBooking.rooms = req.body.rooms
+        newBooking.paxes = req.body.paxes
         newBooking.save()
         console.log("saved.......");
         let fares =0
@@ -27,7 +28,7 @@ exports.storeBookingInfo = async(req,res,next) =>{
 
         console.log(invoice_fare);
         // const stripeResponse=await axios.post(`http://52.91.140.13:88/stripe/create`,{
-        const stripeResponse=await axios.post(`http://52.91.140.13:88/stripe/create`,{
+        const stripeResponse=await axios.post(`${process.env.CORESERVICE}/stripe/create`,{
                 amount:invoice_fare*100,
                 id:req.userId,
                 service:'hotels'

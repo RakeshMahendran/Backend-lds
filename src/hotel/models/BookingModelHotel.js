@@ -95,6 +95,18 @@ const rates_schema = mongoose.Schema({
       
 }) 
 
+const paxes_schema = mongoose.Schema({
+  roomId : {
+    type: String
+  },
+  type:{
+    type:String
+  },
+  age:{
+    type:String || Number
+  }
+})
+
 const rooms_schema = mongoose.Schema({
     
         code: {
@@ -172,6 +184,11 @@ const  hotel_bookings = mongoose.Schema({
         rooms: {
           type: [
             rooms_schema
+          ]
+        },
+        paxes:{
+          type:[
+            paxes_schema
           ]
         },
         minRate: {
