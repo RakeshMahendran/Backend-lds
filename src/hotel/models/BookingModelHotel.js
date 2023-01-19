@@ -116,9 +116,8 @@ const rooms_schema = mongoose.Schema({
           type: String
         },
         rates: {
-          type: [
-            rates_schema
-          ]
+          type: rates_schema
+  
         }
       
 })

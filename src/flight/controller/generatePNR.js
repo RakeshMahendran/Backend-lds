@@ -8,6 +8,25 @@ const Journey = require('../model/flight_journey')
 
 const {User} = require('../../users/models/userModel')
 
+async function request (body){
+    console.log('[+]Body to gen pnr',body)
+    const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/generatePNR`;
+    
+    const headers={
+        "Content-Type":"application/json",
+        "Access_token":"abcd"
+    }
+
+    let bookingResponse =await fetch(url,{
+        method:'POST',
+        headers:headers,
+        body:JSON.stringify(body)
+    })
+
+    return bookingResponse.json()
+
+}
+
 exports.generatePNR=async(req,res,next)=>{
   
     console.log('[+]Generating pnr...')
@@ -20,33 +39,14 @@ exports.generatePNR=async(req,res,next)=>{
         target_api:booking.target_api
     }
 
-    const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/generatePNR`;
-    
-    const bookingResponse =await fetch(url,{
-        method:'POST',
-        headers: {
-            'Content-Type': 'application/json'
-          },
-        body:JSON.stringify(body)
-    })
+   
+    const bookingResponse=await  request(body)
 
     console.log('[+]Booking response ',bookingResponse)
     
-   /* 
-    console.log('[+]Pnr response ',bookingResponse)
-    if(bookingResponse.ErrorCode!==undefined){
-        return res.json({
-            error:true,
-            message:bookingResponse.ErrorText,
-            bookingId:req.bookingId
-        })
-    }
-    */
-    // booking.api_pnr=bookingResponse.PNR;
-    // booking.api_refNum=bookingResponse.ReferenceNumber;
-    
-    booking.api_pnr=bookingResponse.body.api_pnr
-    booking.api_refNum=bookingResponse.body.api_refNum
+
+    booking.api_pnr=bookingResponse.api_pnr
+    booking.api_refNum=bookingResponse.api_refNum
 
     booking.booking_status="PNR";
     console.log('[+]Pnr generated...')
@@ -61,51 +61,4 @@ exports.generatePNR=async(req,res,next)=>{
 }
 
 
-
-function createBookingRequest(flight_passenger,passenger_contact,itinearyId){
-    const bookingRequest={
-        "ItineraryId": itinearyId,
-        "BookItineraryPaxDetail":flight_passenger.map((e)=>{
-            return {
-                "PaxType":e.passenger_type,
-                "Gender": e.gender[0],
-                "UserTitle": e.prefix,
-                "FirstName": e.firstName,
-                "MiddleName": "",
-                "LastName": e.lastName,
-                "DateOfBirth": `${e.dateOfBirth.getMonth()}/${e.dateOfBirth.getDate()}/${e.dateOfBirth.getFullYear()}`,
-                "PassportNumber": e.passport_no,
-                "CountryOfIssue":e.passport_issuance_country,
-                "Nationality":e.nationality,
-                "PassportIssueDate":"",
-                "PassportExpiryDate":`${e.passport_expiry_date.getMonth()}/${e.passport_expiry_date.getDate()}/${e.passport_expiry_date.getFullYear()}`
-            }
-        }),
-        "BookItineraryPaxContactInfo": {
-        "PhoneNumber": String(passenger_contact.phone_number),
-        "AlternatePhoneNumber": String(passenger_contact.alternate_phone_number),
-        "Email": String(passenger_contact.email)
-        },
-        "BookItineraryPaymentDetail":{
-           "PaymentType": "HOLD",
-        }
-        }
-
-        return bookingRequest
-}
-
-bookItinerary=async(bookingRequest)=>{
-
-    const url="https://map.trippro.com/resources/v2/Flights/bookItinerary"
-    const headers={
-        "Content-type":"application/json",
-        "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
-    }
-    const response = await fetch(url,{
-        method:"POST",
-        headers:headers,
-        body:JSON.stringify(bookingRequest)
-    })
-    return response.json()
-}
 

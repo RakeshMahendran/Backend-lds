@@ -2,37 +2,40 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const Transaction = require('../flight/model/transaction')
 
 
-exports.stripeRefund=async(req,res)=>{
-        console.log('STRIPE REFUND INITIATED[+]')
-      //   console.log(req.body)
-        try
-        {
-            const transaction= await Transaction.findById(req.body.id)
+
+
+exports.stripeRefund= async(data)=>{
+      console.log('[+]Stripe refund init...')
+      try{
+            const transaction= await Transaction.findById(data.transactionId)
             if(!transaction){
                   throw {message:`No transaction is found for the flightBooking BookingID`,bookingId:req.bookingId,"transaction":flight.transaction}
-              }
-              if(transaction.refund.status==="succeeded"){
-                  throw "The refund is already done"
-              }
-              if(transaction.status==="unpaid")
-              {
-                  throw "The payment is not done completely"
-              }
-              try
-              {
+            }
+            
+            if(transaction.refund.status==="succeeded"){
+                  throw {message:"The refund is already done"}
+            }
+            
+            if(transaction.status==="unpaid")
+            {
+                  throw {message:"The payment is not done completely"}
+            }
+            console.log('[+]Error check...')
+            
+            try
+            {
                   const refund = await stripe.refunds.create({
                         payment_intent:transaction.payIntentId
-                    })
+                  })
         
                     transaction.refund.id=refund.id
                     transaction.refund.amount=refund.amount
-                    transaction.refund.reason=req.body.reason
+                    transaction.refund.reason=data.reason?data.reason:""
                     transaction.refund.status=refund.status
                     transaction.status="refunded"
                     await transaction.save()
-                    console.log("REFUND SUCCESSFULL")
-                    return res.json(
-                          {
+                    console.log("[+]Refund successfull...")
+                    return {
                                 error:false,
                                 amount:refund.amount,
                                 status:{
@@ -41,28 +44,30 @@ exports.stripeRefund=async(req,res)=>{
                                 }
 
                           }
-                    )
+                    
               }
               catch(e)
               {
                     console.log('[+]Error from creating refund ',e.raw)
+                    console.log('[+]Error from creating refund ',e.message)
                     if(e.raw.code==="charge_already_refunded")
                   {
                         const charge = await stripe.charges.retrieve(transaction.chargeId)
-                        console.log('[+]Refunded charge ',charge.refunds)
-                        let refund=charge.refunds[0]
+                        console.log('[+]Refunded charge ',charge.refunds.data[0])
+                        let refund=charge.refunds.data[0]
                         transaction.refund.id=refund.id
                         transaction.refund.amount=refund.amount
-                        transaction.refund.reason=req.body.reason
+                        transaction.refund.reason=data.reason?data.reason:""
                         transaction.refund.status=refund.status
                         // transaction.status="refunded"
-                       
+                        
+                        
                         // await flight.save()
                         await transaction.save()
                         console.log("REFUND ALREADY DONE")
-                        res.json(
-                              {
-                                    error:true,
+                        
+                             return {
+                                    error:false,
                                     message:"the refund is already done",
                                     amount:refund.amount,
                                     status:{
@@ -70,30 +75,25 @@ exports.stripeRefund=async(req,res)=>{
                                           booking:"cancled"
                                     }
                               }
-                        )
+                        
                   }
                   else
                   {
-                        res.json(
-                              {
-                                    error:true,
+                        throw {
                                     message:e.raw.code
                               }
-                        )
+                        
                   }
              
                  
               }
-        }
-        catch(e)
-        {
-              res.json(
-                    {
-                          error:true,
-                          message:e
-                    }
-              )
-        }
 
 
+      }catch(e){
+            console.log('[**]',e.message)
+            return{
+                  error:true,
+                  message:e.message 
+            }
+      }
 }

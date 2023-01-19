@@ -11,7 +11,6 @@ const flight_bookings = mongoose.Schema({
     target_api:{
         type:String,
         require:true,
-
     },
     trip_type:{
         type:String,

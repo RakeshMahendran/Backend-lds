@@ -1,6 +1,6 @@
 const FlightBooking=require('../model/flight_booking')
-const Transaction = require('../model/transaction')
-const axios=require('axios')
+const {stripeCreate}= require("../../stripe/stripe.create")
+
 exports.stripeElements=async(req,res)=>{
     console.log('[+]Init stripe elements...')
     FlightBooking.findById(req.bookingId).exec(async(err,data)=>{
@@ -11,37 +11,49 @@ exports.stripeElements=async(req,res)=>{
         const fares = Math.round((data.invoice_fare)*100)
         console.log('[+]Fares ',fares)
         //calling stripe endpoint of coreservice
-        const stripeResponse=await axios.post(`${process.env.CORESERVICE}/stripe/create`,{
-            amount:fares,
-            id:data._id,
-            service:'flights'
-        })
-        console.log('[+]Stripe create response ',stripeResponse.data)
-        if(stripeResponse.data)
-        {
-            if(stripeResponse.data.error==false)
-            {
-                //storing the transaction id into the data
-                data.transaction= stripeResponse.data.transaction_id;
-                await data.save((err,d)=>{
-                    console.log('[+]Flight Booking saved')
-                })
-                return res.json({
-                    error:false,
-                    paymentIntents:stripeResponse.data.stripe.payment_intent_CLIENT_SECRET,
-                    fare:fares,
-                    fares:{
-                        markup:data.markup,
-                        pay_fare:data.pay_fare,
-                        invoice_fare:data.invoice_fare,
-                        passenger:data.flight_passenger_id.length
-                    },
-                    cancelLink:`http://localhost:6030/api/v1/flight/cancel/${req.bookingId}`,
-                    bookingId:req.bookingId
-                })
+        // const stripeResponse=await axios.post(`${process.env.CORESERVICE}/stripe/create`,{
+        //     amount:fares,
+        //     id:data._id,
+        //     service:'flights'
+        // })
+
+        try{
+
+            const stripeData= await stripeCreate({
+                amount:fares,
+                bookingId:data._id,
+                service:"flights"
+            })
+
+            if(stripeData.error){
+                throw {
+                    message:stripeData.message
+                }
             }
+            console.log('[+]Stripe data ',stripeData)
+            data.transaction=stripeData.transaction_id
+            await data.save()
+
+            return res.json({
+                error:false,
+                paymentIntents:stripeData.payintent_client_secret,
+                fare:fares,
+                fares:{
+                    markup:data.markup,
+                    pay_fare:data.pay_fare,
+                    invoice_fare:data.invoice_fare,
+                    passenger:data.flight_passenger_id.length
+                },
+                // cancelLink:`http://localhost:6030/api/v1/flight/cancel/${req.bookingId}`,
+                bookingId:req.bookingId
+            })
+
+        }catch(e){
+            return res.json({
+                error:true,
+                message:e.message
+            })
         }
-        
 
     })
 }

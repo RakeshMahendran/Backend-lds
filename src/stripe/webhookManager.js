@@ -1,5 +1,6 @@
 const Transaction = require('../flight/model/transaction')
 const FlightBooking= require('../flight/model/flight_booking')
+const HotelBooking= require('../hotel/models/BookingModelHotel')
 
 const {ticketing}= require("../flight/controller/ticketing")
 const { default: axios } = require('axios')
@@ -36,7 +37,7 @@ exports.webhookManager=async(req,res)=>{
                 }
                 console.log(`[=]payment succeeded for service ${service}...`)
                 switch(service){
-                    case "flight":{
+                    case "flights":{
                         FlightBooking.findById(bookingId).exec(async(err,data)=>{
                             if(err||!data){
                                 console.log('[+]Unable to find the data for the particular id')
@@ -68,7 +69,7 @@ exports.webhookManager=async(req,res)=>{
                         let booking_data
                         try {
 
-                            hotelBooking.findById(bookingId, async function (err,docs){
+                            HotelBooking.findById(bookingId, async function (err,docs){
                             if (err){
                                 console.log(err);
                             }
@@ -80,12 +81,6 @@ exports.webhookManager=async(req,res)=>{
                                     "rateKey" : s.rates.rateKey,
                                     "paxes" : booking_data.paxes,
 
-                                    // "paxes" : [
-                                    //     {
-                                    //     "roomId" : 1,
-                                    //     "type" : "AD"
-                                    //     }
-                                    // ]
                                     }
                                 })
                                 // MAINLY SAVE BOOKING REFERENCE
@@ -111,18 +106,18 @@ exports.webhookManager=async(req,res)=>{
                                         "phoneNumber": "654654654"
                                     },
                                 }}
-                                console.log("hotel webHook activated.....");
+                                console.log("hotel webHook activated.....",req_body);
                                 // const hotelBookingResponse = await axios.post(`http:localhost:6031/api/v1/hotel/booking`,req_body)
                                 const hotelBookingResponse = await axios.post(`${process.env.CUSTOMERSERVICE}/api/v1/hotel/booking`,req_body)
 
-                                if (hotelBookingResponse.error == false){
+                                if (hotelBookingResponse.data.error == false){
                                     
                                     booking_data.booking_status = "confirmed",
                                     booking_data.booking_reference = hotelBookingResponse.booking.reference ,
                                     booking_data.clientReference = hotelBookingResponse.booking.clientReference
                                 }else{
                                     console.log("Error in webhookManager(hotel)")
-                                    console.log(hotelBookingResponse);
+                                    console.log(hotelBookingResponse.data);
                                     booking_data.booking_status = "failed"
                                 }
                             }

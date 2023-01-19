@@ -1,45 +1,38 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 //IMPORTING TRANSACTION SCHEMA
 const Transaction=require('../flight/model/transaction')
-exports.stripeCreate=async(req,res)=>{
-    console.log('[+]STRIPE INITIATION')
-//     console.log(req.body)
+
+exports.stripeCreate=async(data)=>{
+      console.log('[+]Stripe init...')
+      console.log('[+]Stripe init data ',data)
       try{
-            //CREATING A NEW TRANSACTION TO STORE IN THE TABLE
-             let newTransaction = new Transaction();
+            let newTransaction = new Transaction()
             const payment_intent = await stripe.paymentIntents.create({
-                  amount:req.body.amount,
+                  amount:data.amount,
                   currency:process.env.STRIPE_CURRENCY,
                   metadata:{
-                      "bookingId":String(req.body.id),
+                      "bookingId":String(data.bookingId),
                       "invoice":String(newTransaction._id),
-                      "serviceType":req.body.service
+                      "serviceType":data.service
                   }
               })
-                         //   console.log("ID",payment_intent.id)
-                        //   console.log("CLIENT_SECRET",payment_intent.client_secret)
 
-             
-              newTransaction.payIntentId=payment_intent.id
-              newTransaction.clientSecret=payment_intent.client_secret
-              newTransaction.service=req.body.service
-              await newTransaction.save((err,d)=>{
-                  console.log('[+]TRANSACTION SAVED')
-              })
-              let result={
-                  payment_intent_ID:payment_intent.id,
-                  payment_intent_CLIENT_SECRET:payment_intent.client_secret
-              }
-              res.json({
-                    error:false,
-                    transaction_id:newTransaction._id,
-                    stripe:result
-              })
-      }
-      catch(e){
-            res.json({
+            newTransaction.payIntentId=payment_intent.id
+            newTransaction.clientSecret=payment_intent.client_secret
+            newTransaction.service=data.service
+            await newTransaction.save()
+            console.log('[+]Saved transaction ',newTransaction)
+            return {
+                  error:false,
+                  payintent_client_secret:payment_intent.client_secret,
+                  transaction_id:newTransaction._id
+            }
+
+      }catch(e){
+            console.log('[**]Error stripecreate ',e.message)
+            return {
                   error:true,
-                  message:e
-            })
+                  message:e.message
+            }
       }
 }

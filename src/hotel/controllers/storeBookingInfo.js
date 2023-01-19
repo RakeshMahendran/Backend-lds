@@ -1,6 +1,8 @@
 const hotelBooking = require("../models/BookingModelHotel")
 const axios=require('axios')
 
+const {stripeCreate}= require('../../stripe/stripe.create')
+
 exports.storeBookingInfo = async(req,res,next) =>{
     try{
         const newBooking = new hotelBooking()
@@ -11,15 +13,19 @@ exports.storeBookingInfo = async(req,res,next) =>{
         newBooking.payment_method = req.body.paymentType
         newBooking.rooms = req.body.rooms
         newBooking.paxes = req.body.paxes
-        const newGuestBooking = await newBooking.save()
-        console.log("saved.......");
+        newBooking.name.firstName=req.body.holder.name
+        newBooking.name.lastName= req.body.holder.surname
+
+        // console.log('[+]names ',req.body)
+        await newBooking.save()
+        console.log("saved.......",newBooking);
         let fares =0
         const markup = 20
         newBooking.rooms.map((s)=>{
             // s.rates.map((single)=>{
                 // console.log(single);
-                console.log(s.rates[0]);
-                fares += parseInt(s.rates[0].net)
+                console.log(s.rates);
+                fares += parseInt(s.rates.net)
                 console.log(fares);
             // })
         })
@@ -27,42 +33,28 @@ exports.storeBookingInfo = async(req,res,next) =>{
         invoice_fare = invoice_fare.toFixed(2)
 
         console.log(invoice_fare);
-        // const stripeResponse=await axios.post(`http://52.91.140.13:88/stripe/create`,{
-        const stripeResponse=await axios.post(`${process.env.CORESERVICE}/stripe/create`,{
-                amount:invoice_fare*100,
-                id:req.userId,
-                service:'hotels'
-            })
-            // console.log(stripeResponse);
-            if(stripeResponse.data || 1)
-            {
-                if(stripeResponse.data.error==false || 1)
-                {
-                    //storing the transaction id into the data
-                    newBooking.transaction= stripeResponse.data.transaction_id;
-                    await newBooking.save((err,d)=>{
-                        console.log('[+]Hotel Booking saved')
-                    })
-
-                    if (stripeResponse.data.error == false){
-                        return res.json({
-                            error:false,
-                            paymentIntents:stripeResponse.data.stripe.payment_intent_CLIENT_SECRET,
-                            fare:invoice_fare,
-                            bookingId:newGuestBooking._id
-                        })
-                        
-                    }else{
-                        return res.json({
-                            error:true,
-                            message:stripeResponse.data.message,
-                            fare:invoice_fare,
-                            bookingId:newGuestBooking._id
-                        })
-                        
-                    }
-                }
+        
+        
+        const stripeResponse =await stripeCreate({
+            amount:invoice_fare*100,
+            bookingId:newBooking._id,
+            service:"hotels"
+        })
+        if(stripeResponse.error){
+            throw{
+                message:stripeResponse.message
             }
+        }
+
+        newBooking.transaction= stripeResponse.transaction_id
+        await newBooking.save()
+
+        return res.json({
+            error:false,
+            paymentIntents:stripeResponse.payintent_client_secret,
+            fare:invoice_fare,
+            bookingId:newBooking._id
+        })
 
     }
     catch (error) {
