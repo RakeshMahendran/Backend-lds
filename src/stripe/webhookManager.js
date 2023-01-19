@@ -2,79 +2,161 @@ const Transaction = require('../booking/model/transaction')
 const FlightBooking= require('../booking/model/flight_booking')
 
 const {ticketing}= require("../booking/controller/ticketing")
+const { default: axios } = require('axios')
 
 exports.webhookManager=async(req,res)=>{
-    let type=req.body.type
-    
-    console.log('[+]payintent sucess ===> metadata ',req.body.data.object.metadata)
-    let bookingId=req.body.data.object.metadata.bookingId
-    let transactionId= req.body.data.object.metadata.invoice
-    let service= req.body.data.object.metadata.serviceType
-    switch(type){
-        case "payment_intent.created":
-            console.log('[+]Payintent created for ',service,'service ...')
-            break;
+    try{
 
-        case "payment_intent.succeeded":
-            let transaction = await Transaction.findById(transactionId)
-            if(transaction) {
-                transaction.status = "paid"
+        let type=req.body.type
+        
+        console.log('[+]payintent sucess ===> metadata ',req.body.data.object.metadata)
+        let bookingId=req.body.data.object.metadata.bookingId
+        let transactionId= req.body.data.object.metadata.invoice
+        let service= req.body.data.object.metadata.serviceType
+        switch(type){
+            case "payment_intent.created":
+                console.log('[+]Payintent created for ',service,'service ...')
+                break;
     
-                //updates the transaction from the dets of the webhook of payment success
+            case "payment_intent.succeeded":
+                let transaction = await Transaction.findById(transactionId)
+                if(transaction) {
+                    transaction.status = "paid"
+        
+                    //updates the transaction from the dets of the webhook of payment success
 
-                transaction = updateCharges(req.body.data.object.charges.data[0], transaction)
-                await transaction.save()
-            }
-            else{
+                    transaction = updateCharges(req.body.data.object.charges.data[0], transaction)
+                    await transaction.save()
+                }
+                else{
                 res.status(200)
-                res.send("The transaction id is not found in the db")
-                return
-            }
-            console.log(`[=]payment succeeded for service ${service}...`)
-            switch(service){
-                case "flight":{
-                    FlightBooking.findById(bookingId).exec(async(err,data)=>{
-                        if(err||!data){
-                            console.log('[+]Unable to find the data for the particular id')
-                            return
-                        }
-                        data.payment_status="paid"
-                        /********* Initiate the ticketing once the payment is done ********/
-            
-                        if(data.booking_status==="PNR"){
-                            data.booking_status="ticketing"
-                            //ticketing(data).then(d=>{
-                                // console.log("[+]",d)
-            
-                                    /* once the ticketing is done and successfull */
-                                    let t= new Date()
-                                    t.setSeconds(t.getSeconds()+(24*60*60))
-                                    data.cancelTimeLimit=t
-                            //})
-                        }
-                        await data.save();
-                        console.log('[+]Flight saved ',data)
-                        console.log('[+]Transaction ',transaction)                      
-                    })
+                    res.send("The transaction id is not found in the db")
+                    return
                 }
-                    break;
-                case "hotel":{
+                console.log(`[=]payment succeeded for service ${service}...`)
+                switch(service){
+                    case "flight":{
+                        FlightBooking.findById(bookingId).exec(async(err,data)=>{
+                            if(err||!data){
+                                console.log('[+]Unable to find the data for the particular id')
+                                return
+                            }
+                            data.payment_status="paid"
+                            /********* Initiate the ticketing once the payment is done ********/
+                
+                            if(data.booking_status==="PNR"){
+                                data.booking_status="ticketing"
+                                //ticketing(data).then(d=>{
+                                    // console.log("[+]",d)
+                
+                                        /* once the ticketing is done and successfull */
+                                        let t= new Date()
+                                        t.setSeconds(t.getSeconds()+(24*60*60))
+                                        data.cancelTimeLimit=t
+                                //})
+                            }
+                            await data.save();
+                            console.log('[+]Flight saved ',data)
+                            console.log('[+]Transaction ',transaction)                      
+                        })
+                    }
+                        break;
+                    case "hotel":{
+                        console.log("Hotel webhook");
 
-                }
-                    break;
-                case "cab":{
+                        let booking_data
+                        try {
 
+                            hotelBooking.findById(bookingId, async function (err,docs){
+                            if (err){
+                                console.log(err);
+                            }
+                            else{
+                                console.log("Result : ", docs);
+                                booking_data = docs
+                                const rooms = booking_data.rooms.map((s)=>{
+                                    return {
+                                    "rateKey" : s.rates.rateKey,
+                                    "paxes" : booking_data.paxes,
+
+                                    // "paxes" : [
+                                    //     {
+                                    //     "roomId" : 1,
+                                    //     "type" : "AD"
+                                    //     }
+                                    // ]
+                                    }
+                                })
+                                // MAINLY SAVE BOOKING REFERENCE
+                                console.log("For booking[+]");
+                                let req_body = {
+                                "holder" :  {
+                                    "name" : booking_data.name.firstName,
+                                    "surname" : booking_data.name.lastName
+                                },
+                                "clientReference" : "IntegrationAgency",
+                                "tolerance" : 2, // percentage of price Change to accept,
+                                "rooms" : rooms,
+                                "paymentData": {
+                                    "paymentCard": {
+                                        "cardHolderName": "CardHolderName",
+                                        "cardType": "VI",
+                                        "cardNumber": "4444333322221111",
+                                        "expiryDate": "0320",
+                                        "cardCVC": "123"
+                                    },
+                                    "contactData": {
+                                        "email": "integration@hotelbeds.com",
+                                        "phoneNumber": "654654654"
+                                    },
+                                }}
+                                console.log("hotel webHook activated.....");
+                                // const hotelBookingResponse = await axios.post(`http:localhost:6031/api/v1/hotel/booking`,req_body)
+                                const hotelBookingResponse = await axios.post(`${process.env.CUSTOMERSERVICE}/api/v1/hotel/booking`,req_body)
+
+                                if (hotelBookingResponse.error == false){
+                                    
+                                    booking_data.booking_status = "confirmed",
+                                    booking_data.booking_reference = hotelBookingResponse.booking.reference ,
+                                    booking_data.clientReference = hotelBookingResponse.booking.clientReference
+                                }else{
+                                    console.log("Error in webhookManager(hotel)")
+                                    console.log(hotelBookingResponse);
+                                }
+                            }
+                            }
+                            )
+                        }
+                            
+
+                                catch(error){
+                                    console.log("error at hotel Booking Response:",error.message);
+                                }
+
+                    }
+                        break;
+                    
+                    case "cab":{
+    
+                    }
+                        break;
                 }
-                    break;
-            }
-            break;
-        case "payment_intent.requires_action":
-            console.log('[+]This payment need action')
-            break;
+                break;
+            case "payment_intent.requires_action":
+                console.log('[+]This payment need action')
+                break;
+        }
+    
+        res.status(200)
+        res.send()
+    }catch(error){
+        console.log(error.message)
+        res.json({
+            error:true,
+            message: error.message,
+            file: "webhookManager.js"
+        })
     }
-
-    res.status(200)
-    res.send()
 
 }
 
