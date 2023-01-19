@@ -11,14 +11,14 @@ exports.sucessPaymentHotel = async(req,res,next) =>{
                 console.log(err);
             }
             else{
-                let transactionId = docs.transaction
-                let transaction = await Transaction.findById(transactionId)
+                // let transactionId = docs.transaction
+                // let transaction = await Transaction.findById(transactionId)
                 console.log("Result : ", docs);
                 booking_data = docs
                 res.json({
                     error: false,
                     data: booking_data,
-                    transaction_data : transaction
+                    // transaction_data : transaction
                 })
             }
         })

@@ -4,7 +4,7 @@ const axios=require('axios')
 exports.storeBookingInfo = async(req,res,next) =>{
     try{
         const newBooking = new hotelBooking()
-        newBooking.hotelCode = req.body.code
+        newBooking.code = req.body.code
         newBooking.userId = req.userId
         newBooking.booking_status = "init"
         // newBooking.payment_status = "unpaid"
