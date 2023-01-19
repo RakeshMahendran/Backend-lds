@@ -128,7 +128,7 @@ const  hotel_bookings = mongoose.Schema({
           type:mongoose.Schema.ObjectId,
           ref:'UserHotel'
         },
-        code: {
+        hotelCode: {
           type: Number
         },
         booking_status:{
