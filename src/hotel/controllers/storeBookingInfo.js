@@ -7,10 +7,11 @@ exports.storeBookingInfo = async(req,res,next) =>{
         newBooking.code = req.body.code
         newBooking.userId = req.userId
         newBooking.booking_status = "init"
-        newBooking.payment_status = "unpaid"
+        // newBooking.payment_status = "unpaid"
         newBooking.payment_method = req.body.paymentType
         newBooking.rooms = req.body.rooms
-        newBooking.save()
+        newBooking.paxes = req.body.paxes
+        const newGuestBooking = await newBooking.save()
         console.log("saved.......");
         let fares =0
         const markup = 20
@@ -48,7 +49,7 @@ exports.storeBookingInfo = async(req,res,next) =>{
                             error:false,
                             paymentIntents:stripeResponse.data.stripe.payment_intent_CLIENT_SECRET,
                             fare:invoice_fare,
-                            bookingId:req.bookingId
+                            bookingId:newGuestBooking._id
                         })
                         
                     }else{
@@ -56,7 +57,7 @@ exports.storeBookingInfo = async(req,res,next) =>{
                             error:true,
                             message:stripeResponse.data.message,
                             fare:invoice_fare,
-                            bookingId:req.bookingId
+                            bookingId:newGuestBooking._id
                         })
                         
                     }

@@ -64,11 +64,80 @@ exports.webhookManager=async(req,res)=>{
                         break;
                     case "hotels":{
                         console.log("Hotel webhook");
-                        // let d = await JSON.stringify(req.body)
-                        // console.log("hotel webHook activated.....",d);
-                        axios.post(`${process.env.CUSTOMERSERVICE}/api/v1/hotel/webhook`,req.body)
+
+                        let booking_data
+                        try {
+
+                            hotelBooking.findById(bookingId, async function (err,docs){
+                            if (err){
+                                console.log(err);
+                            }
+                            else{
+                                console.log("Result : ", docs);
+                                booking_data = docs
+                                const rooms = booking_data.rooms.map((s)=>{
+                                    return {
+                                    "rateKey" : s.rates.rateKey,
+                                    "paxes" : booking_data.paxes,
+
+                                    // "paxes" : [
+                                    //     {
+                                    //     "roomId" : 1,
+                                    //     "type" : "AD"
+                                    //     }
+                                    // ]
+                                    }
+                                })
+                                // MAINLY SAVE BOOKING REFERENCE
+                                console.log("For booking[+]");
+                                let req_body = {
+                                "holder" :  {
+                                    "name" : booking_data.name.firstName,
+                                    "surname" : booking_data.name.lastName
+                                },
+                                "clientReference" : "IntegrationAgency",
+                                "tolerance" : 2, // percentage of price Change to accept,
+                                "rooms" : rooms,
+                                "paymentData": {
+                                    "paymentCard": {
+                                        "cardHolderName": "CardHolderName",
+                                        "cardType": "VI",
+                                        "cardNumber": "4444333322221111",
+                                        "expiryDate": "0320",
+                                        "cardCVC": "123"
+                                    },
+                                    "contactData": {
+                                        "email": "integration@hotelbeds.com",
+                                        "phoneNumber": "654654654"
+                                    },
+                                }}
+                                console.log("hotel webHook activated.....");
+                                // const hotelBookingResponse = await axios.post(`http:localhost:6031/api/v1/hotel/booking`,req_body)
+                                const hotelBookingResponse = await axios.post(`${process.env.CUSTOMERSERVICE}/api/v1/hotel/booking`,req_body)
+
+                                if (hotelBookingResponse.error == false){
+                                    
+                                    booking_data.booking_status = "confirmed",
+                                    booking_data.booking_reference = hotelBookingResponse.booking.reference ,
+                                    booking_data.clientReference = hotelBookingResponse.booking.clientReference
+                                }else{
+                                    console.log("Error in webhookManager(hotel)")
+                                    console.log(hotelBookingResponse);
+                                    booking_data.booking_status = "failed"
+                                }
+                            }
+                            }
+                            )
+                        }
+                            
+
+                                catch(error){
+                                    console.log("error at hotel Booking Response:",error.message);
+                                }
+
                     }
                         break;
+                    
                     case "cab":{
     
                     }
