@@ -1,5 +1,5 @@
 const hotelBooking = require("../models/BookingModelHotel")
-const Transaction = require('../booking/model/transaction')
+// const Transaction = require('../booking/model/transaction')
 const axios=require('axios')
 
 exports.sucessPaymentHotel = async(req,res,next) =>{
