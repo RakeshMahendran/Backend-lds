@@ -133,7 +133,7 @@ const  hotel_bookings = mongoose.Schema({
         },
         booking_status:{
           type:String,
-          enum:["init","canceled","confirmed"]
+          enum:["init","canceled","confirmed","failed"]
         },
         payment_method:{
           type:String,

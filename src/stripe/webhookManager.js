@@ -122,6 +122,7 @@ exports.webhookManager=async(req,res)=>{
                                 }else{
                                     console.log("Error in webhookManager(hotel)")
                                     console.log(hotelBookingResponse);
+                                    booking_data.booking_status = "failed"
                                 }
                             }
                             }
