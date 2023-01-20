@@ -140,6 +140,12 @@ const  hotel_bookings = mongoose.Schema({
           type:String,
           enum:["init","canceled","confirmed","failed"]
         },
+        booking_reference:{
+          type: String
+        },
+        clientReference:{
+          type: String
+        },
         payment_method:{
           type:String,
           enum : ["AT_HOTEL","AT_WEB"]

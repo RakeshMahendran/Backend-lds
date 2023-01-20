@@ -16,6 +16,8 @@ exports.storeBookingInfo = async(req,res,next) =>{
         newBooking.paxes = req.body.paxes
         newBooking.name.firstName=req.body.holder.name
         newBooking.name.lastName= req.body.holder.surname
+        newBooking.checkInDate = req.body.checkInDate
+        newBooking.checkOutDate = req.body.checkOutDate
 
         // console.log('[+]names ',req.body)
         await newBooking.save()
