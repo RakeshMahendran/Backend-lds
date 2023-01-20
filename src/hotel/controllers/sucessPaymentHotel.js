@@ -1,5 +1,6 @@
 const hotelBooking = require("../models/BookingModelHotel")
 const Transaction = require('../../flight/model/transaction')
+const HotelDetails = require("../models/HotelDetailsModel")
 const axios=require('axios')
 
 exports.sucessPaymentHotel = async(req,res,next) =>{
@@ -11,14 +12,17 @@ exports.sucessPaymentHotel = async(req,res,next) =>{
                 console.log(err);
             }
             else{
-                // let transactionId = docs.transaction
-                // let transaction = await Transaction.findById(transactionId)
+                let transactionId = docs.transaction
+                let transaction = await Transaction.findById(transactionId)
+                let hotelCode = docs.code
+                let hotelInfo = await HotelDetails.findOne({code: hotelCode})
                 console.log("Result : ", docs);
                 booking_data = docs
                 res.json({
                     error: false,
-                    data: booking_data,
-                    // transaction_data : transaction
+                    bookingData: booking_data,
+                    transaction_data : transaction,
+                    hotelDetails: hotelInfo
                 })
             }
         })

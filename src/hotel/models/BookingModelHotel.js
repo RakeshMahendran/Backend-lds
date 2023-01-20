@@ -104,6 +104,12 @@ const paxes_schema = mongoose.Schema({
   },
   age:{
     type:String || Number
+  },
+  name:{
+    type: String
+  },
+  surname: {
+    type: String
   }
 })
 
