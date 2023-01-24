@@ -104,6 +104,12 @@ const paxes_schema = mongoose.Schema({
   },
   age:{
     type:String || Number
+  },
+  name:{
+    type: String
+  },
+  surname: {
+    type: String
   }
 })
 
@@ -133,6 +139,12 @@ const  hotel_bookings = mongoose.Schema({
         booking_status:{
           type:String,
           enum:["init","canceled","confirmed","failed"]
+        },
+        booking_reference:{
+          type: String
+        },
+        clientReference:{
+          type: String
         },
         payment_method:{
           type:String,
