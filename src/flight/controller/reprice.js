@@ -71,29 +71,42 @@ exports.getPrice=async (req,res)=>{
 }
 
 async function repriceit(it,a,c,i){
+  try{
 
-    const body={
-        "AdultCount":a,
-        "ChildCount":c,
-        "InfantCount":i
-     }
-
-        console.log('[+]Reprice body ',body)
-
-    const headers={
-        "Content-Type":"application/json",
-        "Access_token":"abcd"
-    }
-
-    const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/reprice/${it}`;
-
-    const response=await fetch(url,{
-        method:"POST",
-        headers:headers,
-        body:JSON.stringify(body)
-    })
+      const body={
+          "AdultCount":a,
+          "ChildCount":c,
+          "InfantCount":i
+       }
     
-    return response.json()
+          console.log('[+]Reprice body ',body)
+    
+      const headers={
+          "Content-Type":"application/json",
+          "Access_token":"abcd"
+      }
+    
+      const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/reprice/${it}`;
+    
+      const response=await fetch(url,{
+          method:"POST",
+          headers:headers,
+          body:JSON.stringify(body)
+      })
+      
+      return response.json()
+  }
+  catch(e)
+  {
+      console.log('Error in repriceit function')
+      res.json(
+          {
+              error:true,
+              message:error.message,
+              response:'Error while fetching the reprice from tripro'
+          }
+      )
+  }
 
 }
 
