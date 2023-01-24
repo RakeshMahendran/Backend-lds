@@ -49,11 +49,11 @@ const hotelBookingHandler =async(bookingId)=>{
             booking_data.payment_status = "paid"
             console.log(hotelBookingResponse);
 
-            if (hotelBookingResponse.data.error == false && hotelBookingResponse.booking){
+            if (hotelBookingResponse.data.error == false && hotelBookingResponse.data.Results){
                 
                 booking_data.booking_status = "confirmed",
-                booking_data.booking_reference = hotelBookingResponse.booking.reference ,
-                booking_data.clientReference = hotelBookingResponse.booking.clientReference
+                booking_data.booking_reference = hotelBookingResponse.data.Results.reference ,
+                booking_data.clientReference = hotelBookingResponse.data.Results.clientReference
                 await booking_data.save()
             }else{
                 console.log("Error in HotelBookingHandler")
