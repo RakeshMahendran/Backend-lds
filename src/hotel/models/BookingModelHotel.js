@@ -133,6 +133,9 @@ const  hotel_bookings = mongoose.Schema({
           type:mongoose.Schema.ObjectId,
           ref:'UserHotel'
         },
+        cancellationReference:{
+          type: String
+        },
         code: {
           type: Number
         },
