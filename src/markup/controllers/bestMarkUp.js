@@ -3,9 +3,9 @@ const MarkUp = require("../model/markUp")
 exports.bestMarkUp = async (origin="",destination="",airline="",user_group_id="111111111111aaaaaaaaaaaa",user_id="111111111111aaaaaaaaaaaa")=>{
     var current = new Date();
     
-    console.log('[+]',current)
+    // console.log('[+]',current)
     const data = await MarkUp.find({$and:[{$or:[{origin:origin},{destination:destination},{airline:airline},{user_group_id:user_group_id},{user_id:user_id}]},{$and:[{start_dateTime:{$lte:current}},{end_dateTime:{$gte:current}}]}]})
-
+    // console.log('FOUND')
     // console.log('[+]Quered data ',data)
 
     if(!data){
@@ -48,8 +48,8 @@ exports.bestMarkUp = async (origin="",destination="",airline="",user_group_id="1
             maxCount.match=match
         }
     })
-    console.log('[+]The maximum match data ',maxCount)
-    console.log('[+]The markup ',data[maxCount.index])
+    // console.log('[+]The maximum match data ',maxCount)
+    // console.log('[+]The markup ',data[maxCount.index])
     return data[maxCount.index]
 }
    
