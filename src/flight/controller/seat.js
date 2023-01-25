@@ -195,6 +195,7 @@ exports.seat=async(req,res,next)=>{
     console.log("[+]journeys...",journeys)
 
     console.log('[+]seat search response ',response)
+    next()
     }
     catch(e){
         console.log('[+]Not seats requested forwarding to next')
