@@ -84,12 +84,12 @@ exports.cancelRequest = async(req,res,next)=>{
                                     const filterResponse = filterCancelResponse(final.data.Results,bookingId,transaction,hotelInfo)
                                     console.log("filter ended");
                                     
-                                    res.json(filterResponse)
-                                    // res.json({
-                                    //     error: false,
-                                    //     final :filterResponse,
-                                    //     // data: final
-                                    // })
+                                    // res.json(filterResponse)
+                                    res.json({
+                                        error: false,
+                                        final :filterResponse,
+                                        // data: final
+                                    })
                                 }
         
         
