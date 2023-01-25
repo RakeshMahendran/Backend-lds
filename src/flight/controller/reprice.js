@@ -7,11 +7,13 @@ const {bestMarkUp}= require("../../markup/controllers/bestMarkUp")
 const fetch = require ('node-fetch')
 
 exports.getPrice=async (req,res)=>{
-    console.log('[+]Initilizing Trip pro reprice...')
+    // console.log('[+]Initilizing Trip pro reprice...')
     const p = req.body
-    const price=await repriceit(req.itineraryId,p.AdultCount,p.ChildCount,p.InfantCount)
-    console.log('[+]Price ',price)
 
+    // console.log('[+]Request Body:',p)
+    // console.log('[+]Request Itinerary:',req.itineraryId)
+    const price=await repriceit(req.itineraryId,p.AdultCount,p.ChildCount,p.InfantCount)
+    // console.log('[+]Reprice response:\n',price)
     if(price===undefined){
         return res.json({
             error:true,
@@ -24,77 +26,97 @@ exports.getPrice=async (req,res)=>{
             message:price.ErrorText
         })
     }
-     try
-     {
-        let origin = price.Citypairs[0].FlightSegment[0].DepartureLocationCode
-        let destination = price.Citypairs[0].FlightSegment[0].ArrivalLocationCode
-        let airline=price.ValidatingCarrierName
-        // console.log('[=]',price.Citypairs[0])
-        console.log('[+]Markup ',origin,destination,airline)
-        console.log('[+]Reprice ',price)
-        
-    
-        const markup = await bestMarkUp(origin,destination,airline)
-        console.log('[+] Best markup ', markup)
-    
-        if(markup !==undefined){
-            if(markup.markup_type==="%" ){ 
-                price.Fares.map((e,i)=>{
-                    let base_fare=(e.BaseFare*markup.markup_value)/100
-                    e.BaseFare=Math.round(base_fare+e.BaseFare)
-                })
+    if(price.error)
+    {
+        console.log('Error in fetching reprice:',price)
+        res.json(
+            {
+                error:true,
+                message:price.message
             }
-            else{
-                price.Fares.map((e,i)=>{
-                    e.BaseFare+=markup.markup_value
-                })
-            }
+        )
+    }
+    else
+    {
+        try
+        {
+           let origin = price.Fares.Citypairs[0].FlightSegment[0].DepartureLocationCode
+           let destination = price.Fares.Citypairs[0].FlightSegment[0].ArrivalLocationCode
+           let airline=price.Fares.ValidatingCarrierName
+           // console.log('[=]',price.Citypairs[0])
+        //    console.log('[+]Markup ',origin,destination,airline)
+        //    console.log('[+]Reprice ',price)
+           
+       
+           const markup = await bestMarkUp(origin,destination,airline)
+        //    console.log('[+] Best markup ', markup)
+       
+           if(markup !==undefined){
+               if(markup.markup_type==="%" ){
+                   price.Fares.map((e,i)=>{
+                       let base_fare=(e.BaseFare*markup.markup_value)/100
+                       e.BaseFare=Math.round(base_fare+e.BaseFare)
+                   })
+               }
+               else{
+                   price.Fares.map((e,i)=>{
+                       e.BaseFare+=markup.markup_value
+                   })
+               }
+           }
+           
+           console.log('[+]Reprice Response Done...')
+           res.json({
+               error:false,
+               Fares:price
+           })
         }
-        
-        console.log('[+]Reprice done...')
-        res.json({
-            error:false,
-            Fares:price
-        })
-     }
-     catch(e)
-     {
-          res.json(
-              {
-                  error:true,
-                  response:'Error while adding Markup & Checking Reprice',
-                  message:e.message
-              }
-          )
-     }
+        catch(e)
+        {
+             res.json(
+                 {
+                     error:true,
+                     response:'Error while adding Markup & Checking Reprice',
+                     message:e.message
+                 }
+             )
+        }
+    }
 
 }
 
 async function repriceit(it,a,c,i){
 
-    const body={
-        "AdultCount":a,
-        "ChildCount":c,
-        "InfantCount":i
-     }
-
-        console.log('[+]Reprice body ',body)
-
-    const headers={
-        "Content-Type":"application/json",
-        "Access_token":"abcd"
-    }
-
-    const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/reprice/${it}`;
-
-    const response=await fetch(url,{
-        method:"POST",
-        headers:headers,
-        body:JSON.stringify(body)
-    })
+      const body={
+          "AdultCount":a,
+          "ChildCount":c,
+          "InfantCount":i
+       }
     
-    return response.json()
-
+        //   console.log('[+]Reprice body ',body)
+    
+      const headers={
+          "Content-Type":"application/json",
+          "Access_token":"abcd"
+      }
+    //   console.log(process.env.CUSTOMERSERVICE)
+       try{
+        console.log('[+]Sending reprice request to customer service')
+        const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/reprice/${it}`;
+    
+        const response=await fetch(url,{
+            method:"POST",
+            headers:headers,
+            body:JSON.stringify(body)
+        })
+        
+        return response.json()
+       }
+       catch(error)
+       {
+           console.log('Error in calling customer service endpoint for reprice')
+           return undefined
+       }
 }
 
 exports.repriceAndAddJourney=async (req,res,next)=>{

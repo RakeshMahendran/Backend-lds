@@ -19,6 +19,7 @@ const {seat}= require('../src/flight/controller/seat')
 const {storeCustomerInfo} = require("../src/hotel/controllers/storeCustomerInfo")
 const {storeBookingInfo} = require("../src/hotel/controllers/storeBookingInfo")
 const {sucessPaymentHotel} = require("../src/hotel/controllers/sucessPaymentHotel")
+const {cancelRequest} = require("../src/hotel/controllers/cancelRequest")
 
 //CENTRALIZED STRIPE
 const {stripeCreate}=require('../src/stripe/stripe.create')
@@ -48,9 +49,12 @@ router.get('/api/v1/flight/list',listFlight)
 router.get('/api/v1/flight/paymentSuccess/:bookingId',successPayment)
 
 // FOR HOTEL:
+// storing info before booking
 router.post('/api/v1/hotel/initPayBook/guest',storeCustomerInfo,storeBookingInfo)
-
+// confirmation page
 router.post('/api/v1/hotel/paymentSucess', sucessPaymentHotel)
+// cancellation page
+router.post('/api/v1/hotel/cancel',cancelRequest)
 
 
 //CENTRALIZED STRIPE

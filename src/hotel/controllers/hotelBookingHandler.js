@@ -29,32 +29,34 @@ const hotelBookingHandler =async(bookingId)=>{
             "clientReference" : "IntegrationAgency",
             "tolerance" : 2, // percentage of price Change to accept,
             "rooms" : rooms,
-            "paymentData": {
-                "paymentCard": {
-                    "cardHolderName": "CardHolderName",
-                    "cardType": "VI",
-                    "cardNumber": "4444333322221111",
-                    "expiryDate": "0320",
-                    "cardCVC": "123"
-                },
-                "contactData": {
-                    "email": "integration@hotelbeds.com",
-                    "phoneNumber": "654654654"
-                },
-            }}
+            // "paymentData": {
+            //     "paymentCard": {
+            //         "cardHolderName": "CardHolderName",
+            //         "cardType": "VI",
+            //         "cardNumber": "4444333322221111",
+            //         "expiryDate": "0320",
+            //         "cardCVC": "123"
+            //     },
+            //     "contactData": {
+            //         "email": "integration@hotelbeds.com",
+            //         "phoneNumber": "654654654"
+            //     },
+            // }
+        }
             console.log("hotel webHook activated.....",req_body);
             // const hotelBookingResponse = await axios.post(`http:localhost:6031/api/v1/hotel/booking`,req_body)
             const hotelBookingResponse = await axios.post(`${process.env.CUSTOMERSERVICE}/api/v1/hotel/booking`,req_body)
             booking_data.payment_status = "paid"
+            console.log(hotelBookingResponse);
 
-            if (hotelBookingResponse.data.error == false){
+            if (hotelBookingResponse.data.error == false && hotelBookingResponse.data.Results){
                 
                 booking_data.booking_status = "confirmed",
-                booking_data.booking_reference = hotelBookingResponse.booking.reference ,
-                booking_data.clientReference = hotelBookingResponse.booking.clientReference
+                booking_data.booking_reference = hotelBookingResponse.data.Results.reference ,
+                booking_data.clientReference = hotelBookingResponse.data.Results.clientReference
                 await booking_data.save()
             }else{
-                console.log("Error in webhookManager(hotel)")
+                console.log("Error in HotelBookingHandler")
                 console.log(hotelBookingResponse.data);
                 booking_data.booking_status = "failed"
                 await booking_data.save()
