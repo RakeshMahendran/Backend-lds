@@ -58,6 +58,8 @@ const flight_bookings = mongoose.Schema({
     pay_fare:{
        type:Number
     },
+    seat_charge_total_fare:Number,
+    seat_assignment_total_fare:Number,
     booking_status:{
         type:String,
         enum:["init","PNR","cancled","ticketing","confirmed"]

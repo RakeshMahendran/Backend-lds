@@ -31,14 +31,21 @@ exports.generatePNR=async(req,res,next)=>{
   
     console.log('[+]Generating pnr...')
     let booking = FlightBooking.findById(req.bookingId)
-    booking = await booking.populate('flight_passenger_id')
+    booking = await booking.populate('flight_passenger_id').populate({path:'flight_journey',populate:{path:'journey_segments',model:'FlightSegment'}})
 
-    const body={
+
+
+    let body={
         flight_passenger_id:booking.flight_passenger_id,
         passenger_contact_info:booking.passenger_contact_info,
-        target_api:booking.target_api
+        target_api:booking.target_api,
+        seat:false,
     }
 
+    if(booking.seat_charge_total_fare!==undefined){
+        body.seat=true
+        body.journey=booking.flight_journey
+    }
    
     const bookingResponse=await  request(body)
 

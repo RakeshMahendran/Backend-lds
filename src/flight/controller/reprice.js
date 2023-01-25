@@ -154,9 +154,9 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
 
 async function newFlightSegment(e){
     // console.log('[+]Flight segment ',e)
-    console.log('[+]Creating new FLight Segment...',e)
+    console.log('[+]Creating new FLight Segment...')
     const newFlightSegment= new FlightSegment()
-    
+    newFlightSegment.segmentRef=e.AirSegment_Key
     newFlightSegment.origin_code=e.OriginCode
     newFlightSegment.destination_code=e.DestinationCode
     newFlightSegment.departure_dateTime=e.DepartureTime
@@ -167,7 +167,7 @@ async function newFlightSegment(e){
     newFlightSegment.flight_number=e.OperatingFlightNumber
     newFlightSegment.origin_airport_name=e.OriginAirportName
     newFlightSegment.destination_airport_name=e.DestinationAirportName
-
+    console.log('[+]Saved segment ',newFlightSegment._id)
     return await newFlightSegment.save()
 }
 

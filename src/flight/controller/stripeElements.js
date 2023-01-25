@@ -8,7 +8,7 @@ exports.stripeElements=async(req,res)=>{
             return res.json({error:true,message:"Wrong booking id"})
         }
 
-        const fares = Math.round((data.invoice_fare)*100)
+        const fares = Math.round((data.invoice_fare+seat_charge_total_fare+seat_assignment_total_fare)*100)
         console.log('[+]Fares ',fares)
         //calling stripe endpoint of coreservice
         // const stripeResponse=await axios.post(`${process.env.CORESERVICE}/stripe/create`,{
@@ -34,7 +34,7 @@ exports.stripeElements=async(req,res)=>{
             data.transaction=stripeData.transaction_id
             await data.save()
 
-            return res.json({
+            res.json({
                 error:false,
                 paymentIntents:stripeData.payintent_client_secret,
                 fare:fares,
@@ -49,7 +49,7 @@ exports.stripeElements=async(req,res)=>{
             })
 
         }catch(e){
-            return res.json({
+            res.json({
                 error:true,
                 message:e.message
             })

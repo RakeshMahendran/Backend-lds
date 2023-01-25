@@ -34,11 +34,7 @@ app.use(helmet());
 app.use(bodyParser.json());
 // enabling CORS for all requests
 app.use(
-  cors({
-  origin: [process.env.WEB_FRONTEND_URL_1, process.env.WEB_FRONTEND_URL_2],
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true,
-  })
+  cors()
   );
 
 
