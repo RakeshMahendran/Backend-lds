@@ -7,13 +7,13 @@ const {bestMarkUp}= require("../../markup/controllers/bestMarkUp")
 const fetch = require ('node-fetch')
 
 exports.getPrice=async (req,res)=>{
-    console.log('[+]Initilizing Trip pro reprice...')
+    // console.log('[+]Initilizing Trip pro reprice...')
     const p = req.body
 
-    console.log('[+]Request Body:',p)
-    console.log('[+]Request Itinerary:',req.itineraryId)
+    // console.log('[+]Request Body:',p)
+    // console.log('[+]Request Itinerary:',req.itineraryId)
     const price=await repriceit(req.itineraryId,p.AdultCount,p.ChildCount,p.InfantCount)
-    console.log('[+]Reprice response:\n',price)
+    // console.log('[+]Reprice response:\n',price)
     if(price===undefined){
         return res.json({
             error:true,
@@ -65,7 +65,7 @@ exports.getPrice=async (req,res)=>{
                }
            }
            
-           console.log('[+]Reprice Done...')
+           console.log('[+]Reprice Response Done...')
            res.json({
                error:false,
                Fares:price
@@ -101,6 +101,7 @@ async function repriceit(it,a,c,i){
       }
     //   console.log(process.env.CUSTOMERSERVICE)
        try{
+        console.log('[+]Sending reprice request to customer service')
         const url=`${process.env.CUSTOMERSERVICE}/api/v1/flight/reprice/${it}`;
     
         const response=await fetch(url,{
