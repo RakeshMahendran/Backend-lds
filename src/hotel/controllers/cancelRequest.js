@@ -20,7 +20,7 @@ const filterCancelResponse= (data,bookingId,transaction,hotelInfo) =>{
                 return s.paxes
             }),
             code : data.hotel.code,
-            booking_status : data.status,
+            booking_status : (data.status=="CANCELED" || data.status== "CANCELLED" )?"canceled":data.status.toLowerCase(),
             // payment_method : "AT_WEB", //need to change !!!!
             checkInDate : data.hotel.checkIn,
             checkOutDate : data.hotel.checkOut,
@@ -87,7 +87,9 @@ exports.cancelRequest = async(req,res,next)=>{
                                     // res.json(filterResponse)
                                     res.json({
                                         error: false,
-                                        final :filterResponse,
+                                        bookingData:filterResponse.bookingData,
+                                        hotelDetails:filterResponse.hotelData,
+                                        transaction_data:filterResponse.transaction_data,
                                         // data: final
                                     })
                                 }
