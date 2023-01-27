@@ -133,7 +133,8 @@ exports.seat=async(req,res,next)=>{
                         message:"Unable to find the seat row..."
                     }
                 }
-                ColIndex=cabin.seatOrder.findIndex(e=>e===col)
+                let filterOrder=cabin.seatOrder.filter(e=>e!=="WW")
+                ColIndex=filterOrder.findIndex(e=>e===col)
                 if(ColIndex<0){
                     throw{
                         message:"Unable to find seat col..."
@@ -152,6 +153,7 @@ exports.seat=async(req,res,next)=>{
                 console.log(`[+]RowIndex ${RowIndex} and ColIndex ${ColIndex}`)
                 // console.log('[+]Current Seat ',Co)
                 if(currentSeat.seatColumn!==col){
+                    console.log('[+]Unexpected mismatch of seat col ',currentSeat,col)
                     throw{
                         message:"Unexpected mismatch of seat col"
                     }
