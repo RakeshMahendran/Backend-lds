@@ -1,5 +1,14 @@
 const mongoose = require('mongoose');
 
+const seatSchema = new mongoose.Schema({
+        row:String,
+        column:String,
+        cost:Number,
+        currency:String,
+        pantry:Boolean,
+        premiun:Boolean,
+        legRoomSeat:Boolean
+})
 
 const flightSegmentSchema=new mongoose.Schema({
     origin_code:{
@@ -30,6 +39,11 @@ const flightSegmentSchema=new mongoose.Schema({
     flight_number:{
         type:Number,
     },
+    
+    segmentRef:String,
+    
+    seat:[seatSchema],
+
     origin_airport_name:{
         type:String,
     },
@@ -39,16 +53,6 @@ const flightSegmentSchema=new mongoose.Schema({
     travel_duration_in_minutes:{
         type:Number
     },
-
-
-    // previous:{
-    //     type:mongoose.Schema.ObjectId,
-    //     ref:"FlightSegment"
-    // },
-    // next:{
-    //     type:mongoose.Schema.ObjectId,
-    //     ref:"FlightSegment"
-    // }
 })
 
 module.exports=mongoose.model('FlightSegment',flightSegmentSchema);

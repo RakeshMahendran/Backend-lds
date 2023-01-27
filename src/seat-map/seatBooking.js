@@ -2,25 +2,38 @@ const fetch = require('node-fetch')
 
 
 exports.seatMap =async(req,res)=>{
-    console.log('[+]Request to check seat ',req.body)
-    const itineraryid = req.body
-    console.log( itineraryid)
-    const url = "http://map.trippro.com/seatAvailSearch"
-    const headers={
-        "Content-type":"application/json",
-        "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
-    }
-
-   const settings = async() => await fetch(url,{
-        method:"POST",
-        headers:headers,
-        body:JSON.stringify(itineraryid)
-    })
-
-     .then(res=>res.json())
-     .then(seatMap=>res.json(seatMap))   
+    try
+    {
+        console.log('[+]Request to check seat ',req.body)
+        const itineraryid = req.body
+        console.log( itineraryid)
+        const url = "http://map.trippro.com/seatAvailSearch"
+        const headers={
+            "Content-type":"application/json",
+            "AccessToken":process.env.TRIPPRO_ACCESSTOKEN
+        }
     
-     settings()
+       const settings = async() => await fetch(url,{
+            method:"POST",
+            headers:headers,
+            body:JSON.stringify(itineraryid)
+        })
+    
+         .then(res=>res.json())
+         .then(seatMap=>res.json(seatMap))   
+        
+         settings()
+    }
+    catch(e)
+    {
+             res.json(
+                 {
+                     error:true,
+                     response:"Error in seat mapping",
+                     message:e.message
+                 }
+             )
+    }
     // res.then(value=>console.log('[+]', value))
 }
 

@@ -24,8 +24,7 @@ exports.successPayment=async(req,res)=>{
                 message:"PNR is not yet generated"
             })
         }
-        /*
-        stripe.checkout.sessions.retrieve(bookingData.stripe_data.checkoutSessionId).then(async(c)=>{
+        /*stripe.checkout.sessions.retrieve(bookingData.stripe_data.checkoutSessionId).then(async(c)=>{
             console.log('[+]Payment charge ',c)
             if(c.payment_status==="unpaid"){
                 bookingData.payment_status="unpaid"
@@ -122,73 +121,3 @@ exports.successPayment=async(req,res)=>{
     })
 }
 
-exports.payintent=async(req,res)=>{
-    console.log('[+]Stripe webhook event activated ')
-    console.log(req.body)
-    let type=req.body.type;
-    if(type==="payment_intent.created"){
-        console.log('[+]Payintent created ')
-    }
-    else if(type==='payment_intent.succeeded'){
-        //get the booking id and transaction id from the webhook
-        let BookingId = req.body.data.object.metadata.bookingId
-        let transactionId= req.body.data.object.metadata.invoice
-
-        console.log('[+]payintent sucess ===> metadata ',req.body.data.object.metadata)
-        
-        //find the transaction
-        let transaction = await Transaction.findById(transactionId)
-        if(transaction) {
-            transaction.status = "paid"
-            //updates the transaction from the dets of the webhook of payment success
-            transaction = updateCharges(req.body.data.object.charges.data[0], transaction)
-            await transaction.save()
-        }
-        else{
-            res.status(200)
-            res.send("The transaction id is not found in the db")
-            return
-        }
-        FlightBooking.findById(BookingId).exec(async(err,data)=>{
-            if(err||!data){
-                console.log('[+]Unable to find the data for the particular id')
-                return
-            }
-
-            /********* Initiate the ticketing once the payment is done ********/
-
-            // if(data.booking_status==="PNR"){
-            //     data.booking_status="ticketing"
-            //     ticketing(data).then(d=>{
-            //         console.log("[+]",d)
-            //     })
-            // }
-
-            await data.save();
-            
-        })
-    }
-    else if(type ==='payment_intent.requires_action'){
-        console.log('[+]This payment need action')
-    }
-    res.status(200)
-    res.send()
-}
-
-function updateCharges(charge,transaction){
-    //retrive charge with charge id
-
-    let card = charge.payment_method_details
-    console.log('[+]Card dets ',card)
-    transaction.chargeId=charge.id
-    transaction.card.last4=card.card.last4
-    transaction.card.brand=card.card.brand
-    transaction.card.expMonth=card.card.exp_month
-    transaction.card.expYear=card.card.exp_year
-    transaction.receiptURI=charge.receipt_url
-    transaction.amountCharged=charge.amount_captured/100
-    transaction.currency=charge.currency
-    transaction.countryOfPayment=charge.billing_details.address.countryOfPayment
-
-    return transaction
-}

@@ -10,7 +10,6 @@ const flight_bookings = mongoose.Schema({
     target_api:{
         type:String,
         require:true,
-
     },
     trip_type:{
         type:String,
@@ -57,6 +56,8 @@ const flight_bookings = mongoose.Schema({
     pay_fare:{
        type:Number
     },
+    seat_charge_total_fare:Number,
+    seat_assignment_total_fare:Number,
     booking_status:{
         type:String,
         enum:["init","PNR","cancled","ticketing","confirmed"]
@@ -64,26 +65,15 @@ const flight_bookings = mongoose.Schema({
     payment_status:{
         type:String,
         default:"unpaid",
-        enum:["unpaid","paid","partially paid"]
+        enum:["unpaid","paid","refunded"]
         //unpaid,fullpair, partially paid
     },
     currency:{
         type:String,
         require:true
     },
-    stripe_data:{
-        pay_intentId:{
-            type:String,
-        },
-        client_secret:{
-            type:String
-        },
-        chargeId:{
-            type:String,
-        },
-        // checkoutSessionId:{
-        //     type:String
-        // }
+    cancelTimeLimit:{
+        type:Date
     },
     passenger_contact_info:{
         phone_number:{
@@ -119,8 +109,8 @@ flight_bookings.methods={
         console.log('[+]fares',fares)
         this.base_fare=this.total_tax=this.gross_fare=this.invoice_fare=0
        for(f of fares){
-        this.base_fare+=f.BaseFare*pass[f.PaxType]
-        this.total_tax+=f.Taxes*pass[f.PaxType]
+        this.base_fare+=f.BaseFare*pass[f.PassengerType]
+        this.total_tax+=f.TotalTax*pass[f.PassengerType]
        }
        // this.base_fare=Math.round(this.base_fare)
        // this.total_tax=Math.round(this.total_tax)
@@ -128,8 +118,12 @@ flight_bookings.methods={
        this.markup=20
        //this.invoice_fare=this.gross_fare+this.markup
        this.pay_fare=(((this.gross_fare+this.markup)/100)*3).toFixed(2)
+<<<<<<< HEAD:src/booking/model/flight_booking.js
 
        this.invoice_fare=Math.round(this.gross_fare+this.markup+this.pay_fare)
+=======
+       this.invoice_fare=(this.gross_fare+this.markup+this.pay_fare).toFixed(2)
+>>>>>>> 7ce52be79d1f546693ab1a4938279b8562118664:src/flight/model/flight_booking.js
        
     }
 }
