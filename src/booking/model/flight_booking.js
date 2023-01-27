@@ -7,7 +7,6 @@ const flight_bookings = mongoose.Schema({
         ref:'user',
         require:true
     },
-   
     target_api:{
         type:String,
         require:true,
@@ -33,7 +32,6 @@ const flight_bookings = mongoose.Schema({
         type:mongoose.Schema.ObjectId,
         ref:'FlightPassengers',
         require:true,
-
     }],
     base_fare:{
         type:Number
@@ -130,6 +128,7 @@ flight_bookings.methods={
        this.markup=20
        //this.invoice_fare=this.gross_fare+this.markup
        this.pay_fare=(((this.gross_fare+this.markup)/100)*3).toFixed(2)
+
        this.invoice_fare=Math.round(this.gross_fare+this.markup+this.pay_fare)
        
     }

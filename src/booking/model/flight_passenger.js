@@ -21,7 +21,6 @@ const flight_passenger = mongoose.Schema({
     firstName:{
         type:String,
         require:true,
-
     },
     lastName:{
         type:String
