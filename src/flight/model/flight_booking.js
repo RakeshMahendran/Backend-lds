@@ -118,12 +118,7 @@ flight_bookings.methods={
        this.markup=20
        //this.invoice_fare=this.gross_fare+this.markup
        this.pay_fare=(((this.gross_fare+this.markup)/100)*3).toFixed(2)
-<<<<<<< HEAD:src/booking/model/flight_booking.js
-
-       this.invoice_fare=Math.round(this.gross_fare+this.markup+this.pay_fare)
-=======
        this.invoice_fare=(this.gross_fare+this.markup+this.pay_fare).toFixed(2)
->>>>>>> 7ce52be79d1f546693ab1a4938279b8562118664:src/flight/model/flight_booking.js
        
     }
 }
