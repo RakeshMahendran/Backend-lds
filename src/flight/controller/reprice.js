@@ -149,7 +149,7 @@ exports.repriceAndAddJourney=async (req,res,next)=>{
         for(f of reprice.Result.Itinerary){
             const newJourney = new Journey()
             for(fs of f.OriginDestination){
-                // console.log('[+]Itenery ',fs)
+                console.log('[+]creating new flight segment ',fs)
                 const flightSegment = await newFlightSegment(fs)
                 newJourney.journey_segments.push(flightSegment._id)
             }
