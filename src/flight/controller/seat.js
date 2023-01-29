@@ -111,6 +111,7 @@ exports.seat=async(req,res,next)=>{
                 throw{message:`FlightNumber mismatch ${cs.flightNumber} and ${csDb.flight_number}`}
             
         }catch(e){
+            console.log('[+]',e.message)
             return res.json({
                 error:true,
                 message:e.message
