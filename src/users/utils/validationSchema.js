@@ -5,6 +5,7 @@ const signUpBodyValidation = (body) => {
 	const schema = Joi.object({
 		firstName: Joi.string().required().label("First Name"),
         lastName: Joi.string().required().label("Last Name"),
+		collegeName: Joi.string().required().label("College Name"),
 		email: Joi.string().email().required().label("Email"),
 		password: passwordComplexity().required().label("Password"),
 	});
@@ -16,6 +17,7 @@ const googleSignUpBodyValidation = (body) => {
 	const schema = Joi.object({
 		firstName: Joi.string().required().label("First Name"),
         lastName: Joi.string().required().label("Last Name"),
+		collegeName: Joi.string().required().label("College Name"),
 		email: Joi.string().email().required().label("Email"),
 		password: passwordComplexity().required().label("Password"),
 	});

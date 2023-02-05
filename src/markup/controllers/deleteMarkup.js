@@ -1,3 +1,0 @@
-exports.deleteMarkup=(req,res)=>{
-    
-}
